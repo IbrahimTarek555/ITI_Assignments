@@ -1,0 +1,172 @@
+#include "STD_TYPES.h"
+#include "DEFINES.h"
+#include "BIT_MATH.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "UART_interface.h"
+#include "GIE_interface.h"
+#include "TIMERS_interface.h"
+
+#include "MOTOR_interface.h"
+#include "IR_interface.h"
+
+#include <util/delay.h>
+
+//void Main_voidTimer0ISR(void);
+void Main_voidMove(uint8 Copy_u8Direction, uint16 Copy_u16Duration);
+void Main_voidStop(void);
+void Main_voidTimer0ISR(void);
+
+/*Define two DC motors*/
+MOTOR_t Main_stMotor1;
+MOTOR_t Main_stMotor2;
+
+/*Define global variables*/
+static uint8 Main_u8CarDirection;
+static uint8 Main_u8MotorSpeed = 5u;
+
+/*It is the main*/
+void main(void)
+{
+	/*Initialize needed peripherals*/
+	PORT_voidInit();
+	USART_voidInit();
+
+	/*Enable Global Interrupt*/
+	GIE_voidEnable();
+
+	/*Initialize Timer 0*/
+	TIMER0_2_CFG_t Local_stTimer0;
+	Local_stTimer0.ClkSelect = TIMER0_u8SYS_CLK_BY_8;
+	Local_stTimer0.OCMode = OC_DISCONNECTED;
+	Local_stTimer0.WGM = CTC;
+	TIMER0_u8Init(&Local_stTimer0);
+	TIMER0_voidSetCompValue(250);
+	TIMERS_u8SetCallBack(TIMER0_COMP, Main_voidTimer0ISR);
+	TIMERS_u8IntDisable(TIMER0_COMP);
+
+	/*Initialize IR sensors*/
+	IR_t Local_stRightIR;
+	Local_stRightIR.Port = DIO_u8PORTA;
+	Local_stRightIR.Pin = DIO_u8PIN0;
+
+	IR_t Local_stLeftIR;
+	Local_stLeftIR.Port = DIO_u8PORTA;
+	Local_stLeftIR.Pin = DIO_u8PIN1;
+
+	IR_REFLECT_STATE_t Local_enRightIRState;
+	IR_REFLECT_STATE_t Local_enLeftIRState;
+
+	/*Initialize motors' pins*/
+	Main_stMotor1.Pin1 = DIO_u8PIN0;
+	Main_stMotor1.Pin2 = DIO_u8PIN1;
+	Main_stMotor1.Port = DIO_u8PORTC;
+
+	Main_stMotor2.Pin1 = DIO_u8PIN2;
+	Main_stMotor2.Pin2 = DIO_u8PIN3;
+	Main_stMotor2.Port = DIO_u8PORTC;
+
+	/*Define variables*/
+	uint16 Local_u16Distance;
+	uint16 Local_u16LeftDistance;
+	uint16 Local_u16RightDistance;
+
+	/*Super Loop*/
+	while(1)
+	{
+		/*Delay between every step*/
+		_delay_ms(50);
+
+		/*Get the sensors' States*/
+		Local_enRightIRState = IR_enCheckState(&Local_stRightIR);
+		Local_enLeftIRState = IR_enCheckState(&Local_stLeftIR);
+
+		/*Move the car according to readings*/
+		if((Local_enRightIRState == REFLECTED) && (Local_enLeftIRState == REFLECTED))
+		{
+			Main_voidMove('F', 50);
+		}
+		else if((Local_enRightIRState == NOT_REFLECTED) && (Local_enLeftIRState == NOT_REFLECTED))
+		{
+			Main_voidMove('F', 50);
+		}
+		else if((Local_enRightIRState == NOT_REFLECTED) && (Local_enLeftIRState == REFLECTED))
+		{
+			Main_voidMove('L', 50);
+		}
+		else if((Local_enRightIRState == REFLECTED) && (Local_enLeftIRState == NOT_REFLECTED))
+		{
+			Main_voidMove('R', 50);
+		}
+	}
+}
+
+/*Function to move the car in all directions*/
+void Main_voidMove(uint8 Copy_u8Direction, uint16 Copy_u16Duration)
+{
+	/*Send the direction to the timer ISR*/
+	Main_u8CarDirection = Copy_u8Direction;
+
+	/*Enable the timer*/
+	TIMERS_u8IntEnable(TIMER0_COMP);
+
+	/*Delay for the step time*/
+	_delay_ms(Copy_u16Duration);
+
+	/*Stop the vehicle*/
+	Main_voidStop();
+}
+
+/*Function to stop the car*/
+void Main_voidStop(void)
+{
+	/*Disable the timer*/
+	TIMERS_u8IntDisable(TIMER0_COMP);
+
+	/*Stop the motors*/
+	MOTOR_u8Stop(&Main_stMotor1);
+	MOTOR_u8Stop(&Main_stMotor2);
+}
+
+void Main_voidTimer0ISR()
+{
+	/*Define variables*/
+	static uint8 Local_u8Counter = 0u;
+
+	/*Increment the counter of entering the ISR*/
+	Local_u8Counter++;
+
+	/*Move the car according to the needed speed and direction*/
+	if(Local_u8Counter == Main_u8MotorSpeed)
+	{
+		if(Main_u8CarDirection == 'F')
+		{
+			MOTOR_u8RotateCCW(&Main_stMotor1);
+			MOTOR_u8RotateCCW(&Main_stMotor2);
+		}
+		else if(Main_u8CarDirection == 'B')
+		{
+			MOTOR_u8RotateCW(&Main_stMotor1);
+			MOTOR_u8RotateCW(&Main_stMotor2);
+		}
+		else if(Main_u8CarDirection == 'R')
+		{
+			MOTOR_u8RotateCW(&Main_stMotor2);
+			MOTOR_u8RotateCCW(&Main_stMotor1);
+		}
+		else if(Main_u8CarDirection == 'L')
+		{
+			MOTOR_u8RotateCCW(&Main_stMotor2);
+			MOTOR_u8RotateCW(&Main_stMotor1);
+		}
+	}
+
+	/*Every period time stop the motors and zero the counter*/
+	else if(Local_u8Counter == 10u)
+	{
+		MOTOR_u8Stop(&Main_stMotor1);
+		MOTOR_u8Stop(&Main_stMotor2);
+		Local_u8Counter = 0u;
+	}
+}
