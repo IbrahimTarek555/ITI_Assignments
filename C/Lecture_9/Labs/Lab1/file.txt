@@ -1,0 +1,93 @@
+
+Lab1.o:     file format pe-i386
+
+
+Disassembly of section .text:
+
+00000000 <_main>:
+   0:	55                   	push   %ebp
+   1:	89 e5                	mov    %esp,%ebp
+   3:	83 e4 f0             	and    $0xfffffff0,%esp
+   6:	83 ec 10             	sub    $0x10,%esp
+   9:	e8 00 00 00 00       	call   e <_main+0xe>
+   e:	c7 04 24 00 00 00 00 	movl   $0x0,(%esp)
+  15:	e8 00 00 00 00       	call   1a <_main+0x1a>
+  1a:	b8 00 00 00 00       	mov    $0x0,%eax
+  1f:	c9                   	leave  
+  20:	c3                   	ret    
+  21:	90                   	nop
+  22:	90                   	nop
+  23:	90                   	nop
+
+Disassembly of section .rdata:
+
+00000000 <.rdata>:
+   0:	4d                   	dec    %ebp
+   1:	79 20                	jns    23 <.rdata+0x23>
+   3:	6e                   	outsb  %ds:(%esi),(%dx)
+   4:	61                   	popa   
+   5:	6d                   	insl   (%dx),%es:(%edi)
+   6:	65 20 69 73          	and    %ch,%gs:0x73(%ecx)
+   a:	20 49 62             	and    %cl,0x62(%ecx)
+   d:	72 61                	jb     70 <.rdata+0x70>
+   f:	68 69 6d 2e 00       	push   $0x2e6d69
+
+Disassembly of section .rdata$zzz:
+
+00000000 <.rdata$zzz>:
+   0:	47                   	inc    %edi
+   1:	43                   	inc    %ebx
+   2:	43                   	inc    %ebx
+   3:	3a 20                	cmp    (%eax),%ah
+   5:	28 69 36             	sub    %ch,0x36(%ecx)
+   8:	38 36                	cmp    %dh,(%esi)
+   a:	2d 70 6f 73 69       	sub    $0x69736f70,%eax
+   f:	78 2d                	js     3e <.rdata$zzz+0x3e>
+  11:	64 77 61             	fs ja  75 <.rdata$zzz+0x75>
+  14:	72 66                	jb     7c <.rdata$zzz+0x7c>
+  16:	2d 72 65 76 31       	sub    $0x31766572,%eax
+  1b:	2c 20                	sub    $0x20,%al
+  1d:	42                   	inc    %edx
+  1e:	75 69                	jne    89 <.rdata$zzz+0x89>
+  20:	6c                   	insb   (%dx),%es:(%edi)
+  21:	74 20                	je     43 <.rdata$zzz+0x43>
+  23:	62 79 20             	bound  %edi,0x20(%ecx)
+  26:	4d                   	dec    %ebp
+  27:	69 6e 47 57 2d 57 36 	imul   $0x36572d57,0x47(%esi),%ebp
+  2e:	34 20                	xor    $0x20,%al
+  30:	70 72                	jo     a4 <.rdata$zzz+0xa4>
+  32:	6f                   	outsl  %ds:(%esi),(%dx)
+  33:	6a 65                	push   $0x65
+  35:	63 74 29 20          	arpl   %si,0x20(%ecx,%ebp,1)
+  39:	36 2e 32 2e          	ss xor %cs:(%esi),%ch
+  3d:	30 00                	xor    %al,(%eax)
+	...
+
+Disassembly of section .eh_frame:
+
+00000000 <.eh_frame>:
+   0:	14 00                	adc    $0x0,%al
+   2:	00 00                	add    %al,(%eax)
+   4:	00 00                	add    %al,(%eax)
+   6:	00 00                	add    %al,(%eax)
+   8:	01 7a 52             	add    %edi,0x52(%edx)
+   b:	00 01                	add    %al,(%ecx)
+   d:	7c 08                	jl     17 <.eh_frame+0x17>
+   f:	01 1b                	add    %ebx,(%ebx)
+  11:	0c 04                	or     $0x4,%al
+  13:	04 88                	add    $0x88,%al
+  15:	01 00                	add    %eax,(%eax)
+  17:	00 1c 00             	add    %bl,(%eax,%eax,1)
+  1a:	00 00                	add    %al,(%eax)
+  1c:	1c 00                	sbb    $0x0,%al
+  1e:	00 00                	add    %al,(%eax)
+  20:	04 00                	add    $0x0,%al
+  22:	00 00                	add    %al,(%eax)
+  24:	21 00                	and    %eax,(%eax)
+  26:	00 00                	add    %al,(%eax)
+  28:	00 41 0e             	add    %al,0xe(%ecx)
+  2b:	08 85 02 42 0d 05    	or     %al,0x50d4202(%ebp)
+  31:	5d                   	pop    %ebp
+  32:	c5 0c 04             	lds    (%esp,%eax,1),%ecx
+  35:	04 00                	add    $0x0,%al
+	...
