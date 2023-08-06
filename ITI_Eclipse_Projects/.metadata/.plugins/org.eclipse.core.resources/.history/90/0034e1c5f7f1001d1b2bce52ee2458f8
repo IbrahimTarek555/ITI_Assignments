@@ -1,0 +1,54 @@
+#include "STD_TYPES.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "TIMER_interface.h"
+#include "GIE_interface.h"
+
+#include <util/delay.h>
+
+void MAIN_voidLedAss(void);
+
+/*It is the main*/
+void main(void)
+{
+	/*
+	 * Connections:
+	 * Led 0 on Port B pin 0,
+	 * Led 1 on port B pin 1,
+	 * Led 2 on port B pin 2.
+	 * */
+
+	/*Peripherals Initialization*/
+	PORT_voidInit();
+	GIE_voidEnable();
+
+	TIMER_voidInit();
+	TIMER_u8SetCallBackCompareMatch(MAIN_voidLedAss);
+
+	/*Super Loop*/
+	while(1)
+	{
+
+	}
+}
+
+/*
+ * Description:
+ * LED 0: On for 5 milli seconds, Off for 15 milli seconds.
+ * LED 1: On for 10 milli seconds, Off for 10 milli seconds.
+ * LED 2: On for 15 milli seconds, Off for 5 milli seconds.
+ */
+void MAIN_voidLedAss(void)
+{
+	/*Define the Counter*/
+	static uint8 Local_u16Counter = 0;
+
+	Local_u16Counter++;
+	if(Local_u16Counter == 4000)
+	{
+		Local_u16Counter = 0;
+		DIO_u8TogglePinValue(DIO_u8PORTA, DIO_u8PIN7);
+	}
+
+}

@@ -1,0 +1,72 @@
+#include "STD_TYPES.h"
+#include "LIBRARY_interface.h"
+#include "DEFINES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "GIE_interface.h"
+#include "UART_interface.h"
+
+#include "CLCD_interface.h"
+
+#include <util/delay.h>
+void Main_voidFunc(void);
+
+/*It is the main*/
+void main(void)
+{
+	PORT_voidInit();
+	GIE_voidEnable();
+
+	USART_voidInit();
+
+	uint8 Local_u8Reading;
+	USART_u8Send('h');
+	uint8 Ahmed[10] = "Ahmed";
+	uint8 Local_u8ErrorFounder = OK;
+
+	Local_u8ErrorFounder = USART_u8SendBufferSynch(Ahmed, 5);
+	switch(Local_u8ErrorFounder)
+	{
+	case NOK: USART_u8Send('a');	break;
+	case BUSY_STATE_ERR: USART_u8Send('c');	break;
+	case NULL_PTR_ERR: USART_u8Send('d');	break;
+	}
+
+//	Local_u8ErrorFounder = USART_u8ReceiveBufferAsynch(Ahmed, 5);
+//	if(Local_u8ErrorFounder == OK)
+//	{
+//		USART_u8SendBufferSynch(Ahmed, 10);
+//	}
+
+	while(1)
+	{
+		Local_u8ErrorFounder = USART_u8ReceiveBufferAsynch(Ahmed, 5, Main_voidFunc);
+		if(Local_u8ErrorFounder == OK)
+		{
+			USART_u8SendBufferAsynch(Ahmed, 5, Main_voidFunc);
+		}
+//		_delay_ms(500);
+//		Local_u8ErrorFounder = USART_u8ReceiveBufferAsynch(Ahmed, 5, Main_voidFunc);
+//		if(Local_u8ErrorFounder == OK)
+//		{
+//			USART_u8SendBufferAsynch(Ahmed, 2, Main_voidFunc);
+//		}
+//
+//		USART_u8SendBufferSynch(Ahmed, 10);
+//		USART_u8Receive((uint16*) &Local_u8Reading);
+//		if(Local_u8Reading == '0')
+//		{
+//			USART_u8Send('H');
+//		}
+//		else if(Local_u8Reading == '1')
+//		{
+//			USART_u8Send('N');
+//		}
+	}
+}
+void Main_voidFunc(void)
+{
+	DIO_u8SetPinValue(DIO_u8PORTA, DIO_u8PIN6, DIO_u8PIN_HIGH);
+}

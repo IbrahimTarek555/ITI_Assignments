@@ -1,0 +1,74 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: TIMER Tarek			**********************/
+/**********************			File: TWI_program.c			**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file TWI_program.c
+ * @author Ibrahim Tarek
+ * @brief This file implements the TWI module functions.
+ * @version 1.00
+ */
+
+#include "STD_TYPES.h"
+#include "BIT_MATH.h"
+#include "DEFINES.h"
+
+#include "TWI_interface.h"
+#include "TWI_config.h"
+#include "TWI_private.h"
+#include "TWI_register.h"
+
+
+TWI_ERROR_STATUS_t TWI_enMasterInit(uint8 Copy_u8Address)
+{
+	TWI_ERROR_STATUS_t Local_enErrorState = NO_ERROR;
+
+	if(Copy_u8Address > 127u)
+	{
+		if(((Copy_u8Address >> 3) != 15u) || (Copy_u8Address != 0u))
+		{
+			TWAR = Copy_u8Address << 1u;
+		}
+		else
+		{
+			Local_enErrorState = RESERVED_ADDRESS_USED;
+		}
+	}
+	else
+	{
+		Local_enErrorState = FETAL_ERROR;
+	}
+}
+
+TWI_ERROR_STATUS_t TWI_enSlaveInit(uint8 Copy_u8Address)
+{
+
+}
+
+TWI_ERROR_STATUS_t TWI_enSendStartCondition(void)
+{
+
+}
+
+TWI_ERROR_STATUS_t TWI_enSendRepeatedStart(void)
+{
+
+}
+
+TWI_ERROR_STATUS_t TWI_enSendSlaveAddressWithWrite(uint8 Copy_u8SlaveAddress)
+{
+
+}
+TWI_ERROR_STATUS_t TWI_enSendSlaveAddressWithRead(uint8 Copy_u8SlaveAddress)
+{
+
+}
+
+TWI_ERROR_STATUS_t TWI_enMasterWriteDataByte(uint8 Copy_u8Data);
+TWI_ERROR_STATUS_t TWI_enMasterReadDataByte(uint8 *Copy_u8Data);
+
+TWI_ERROR_STATUS_t TWI_enSendStopCondition(void);

@@ -1,0 +1,433 @@
+#include "STD_TYPES.h"
+#include "DEFINES.h"
+#include "BIT_MATH.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "TWI_interface.h"
+#include "TIMERS_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+#include "EEPROM_interface.h"
+
+#include <util/delay.h>
+
+uint16 Main_u16GetIDAddress(uint8 Copy_u8IDNumber);
+uint16 Main_u16GetPasswordAddress(uint8 Copy_u8IDNumber);
+uint16 Main_u16GetAttendedDaysAddress(uint8 Copy_u8IDNumber);
+void Main_voidTimer0Schedule(void);
+
+/*It is the main*/
+void main(void)
+{
+
+	/*
+	 * Memory Management:
+	 * Memory is 1024 Byte, which could be divided into: 1- 100 * 4 Bytes for IDs.
+	 * 													 2- 100 * 4 Bytes for Passwords.
+	 * 													 3- 100 * 2 Bytes for Absent Days.
+	 * 													 4- 24 * 1 Byte of reserved addresses.
+	 * Equation to get ID memory location: 0 + IDNumber * 4.
+	 * Equation to get password memory location: 400 + IDNumber * 4.
+	 * Equation to get Attended Days: 800 + IDNumber * 2.
+	 * IDNumber: (0 - 100).
+	 *
+	 * IDs: Every ID will be 8 digits, every digit could be 4 bits beginning from the
+	 * 		least 4 bits of the 4 bytes.
+	 *
+	 * Passwords: Every password will be 8 digits, every digit could be 4 bits beginning from the
+	 * 			  least 4 bits of the 4 bytes.
+	 *
+	 * System: Is an absence machine, every employee entered his ID and password,
+	 * 		   then the system will mark that he attended.
+	 *
+	 * Reserved Orders: 1- EXTI 1: will let the user to sign up for a new ID.
+	 * 					2- EXTI 2: will let the user to change his ID or password.
+	 * 					3- EXTI 3: will let the user know the total number of attended days.
+	 */
+
+	uint8 Local_u8DataStored = 0;
+
+	PORT_voidInit();
+	CLCD_voidInit();
+
+	TWI_enMasterInit(100);
+
+	/*Initialize timer 0*/
+	TIMER0_2_CFG_t Local_stTimer0;
+	Local_stTimer0.ClkSelect = TIMER0_u8SYS_CLK_BY_8;
+	Local_stTimer0.OCMode = OC_DISCONNECTED;
+	Local_stTimer0.WGM = CTC;
+	TIMER0_u8Init(&Local_stTimer0);
+	TIMER0_voidSetCompValue(250);
+	TIMERS_u8SetCallBack(TIMER0_COMP, Main_voidTimer0Schedule);
+	TIMERS_u8IntEnable(TIMER0_COMP);
+
+	uint8 Local_u8PrintingCounter = 0;
+	uint8 Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+	uint8 Local_u8IDBufferArray[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	uint8 Local_u8PasswordBufferArray[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	uint8 Local_u8ValidateCounter = 0;
+	uint8 Local_u8IDsCounter = 0;
+	uint8 Local_u8IDExistsFlag = 0;
+	uint8 Local_u8VerifiedFlag = 0;
+	uint8 Local_u8TempValidator;
+	uint8 Local_u8SavedIDsNumber = 2;
+
+	uint16 Local_u16TotalAttendedDays = 0;
+
+	uint16 Local_u16IDAddress;
+	uint16 Local_u16PasswordAddress;
+	uint16 Local_u16AttendedDaysAddress;
+
+	EEPROM_u8WriteDataByte(0, 0xfB);
+		EEPROM_u8WriteDataByte(1, 0xff);
+		EEPROM_u8WriteDataByte(2, 0xff);
+		EEPROM_u8WriteDataByte(3, 0xff);
+		EEPROM_u8WriteDataByte(4, 0xff);
+		EEPROM_u8WriteDataByte(5, 0xff);
+		EEPROM_u8WriteDataByte(6, 0xff);
+		EEPROM_u8WriteDataByte(7, 0xff);
+
+		EEPROM_u8WriteDataByte(400, 0xff);
+		EEPROM_u8WriteDataByte(401, 0xff);
+		EEPROM_u8WriteDataByte(402, 0xff);
+		EEPROM_u8WriteDataByte(403, 0xff);
+		EEPROM_u8WriteDataByte(404, 0xff);
+		EEPROM_u8WriteDataByte(405, 0xff);
+		EEPROM_u8WriteDataByte(406, 0xff);
+		EEPROM_u8WriteDataByte(407, 0xff);
+
+		EEPROM_u8WriteDataByte(800, 0x44);
+		EEPROM_u8WriteDataByte(801, 0x44);
+		EEPROM_u8WriteDataByte(802, 0x44);
+		EEPROM_u8WriteDataByte(803, 0x44);
+
+
+	while(1)
+	{
+		Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+//		while(1)
+//		{
+//			Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+//			if(Local_u8PressedKey != KEYPAD_u8NO_PRESSED_KEY)
+//			{
+//				TIMERS_u8IntDisable(TIMER0_COMP);
+//
+//			}
+//		}
+
+
+		CLCD_u8GoToXY(0, 0);
+		CLCD_u8SendString("ID: ");
+		while(Local_u8PrintingCounter != 8)
+		{
+			Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+			if(Local_u8PressedKey != KEYPAD_u8NO_PRESSED_KEY)
+			{
+				Local_u8IDBufferArray[Local_u8PrintingCounter] = Local_u8PressedKey;
+				Local_u8PrintingCounter++;
+				if(Local_u8PressedKey <= 0x9)
+				{
+					CLCD_voidSendData(Local_u8PressedKey + '0');
+				}
+				else
+				{
+					CLCD_voidSendData(Local_u8PressedKey + 'A' - 10);
+				}
+			}
+		}
+
+		Local_u8PrintingCounter = 0;
+		CLCD_u8GoToXY(0, 1);
+		CLCD_u8SendString("Pass: ");
+		while(Local_u8PrintingCounter != 8)
+		{
+			Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+			if(Local_u8PressedKey != KEYPAD_u8NO_PRESSED_KEY)
+			{
+				Local_u8PasswordBufferArray[Local_u8PrintingCounter] = Local_u8PressedKey;
+				Local_u8PrintingCounter++;
+				if(Local_u8PressedKey <= 0x9)
+				{
+					CLCD_voidSendData(Local_u8PressedKey + '0');
+				}
+				else
+				{
+					CLCD_voidSendData(Local_u8PressedKey + 'A' - 10);
+					_delay_ms(250);
+					CLCD_u8GoToXY((5 + Local_u8PrintingCounter), 1);
+					CLCD_voidSendData('*');
+				}
+			}
+		}
+
+		for(Local_u8IDsCounter = 0; Local_u8IDsCounter < Local_u8SavedIDsNumber; Local_u8IDsCounter++)
+		{
+			Local_u8IDExistsFlag = 1;
+			Local_u16IDAddress = Main_u16GetIDAddress(Local_u8IDsCounter);
+
+			for(Local_u8ValidateCounter = 0; Local_u8ValidateCounter < 4; Local_u8ValidateCounter++)
+			{
+				EEPROM_u8ReadDataByte(Local_u16IDAddress + Local_u8ValidateCounter, &Local_u8TempValidator);
+				/*
+				 * 0 -> 0, 1
+				 * 1 -> 2, 3
+				 * 2 -> 4, 5
+				 * 3 -> 6, 7
+				 */
+				if((Local_u8IDBufferArray[Local_u8ValidateCounter * 2 + 0] & 0b00001111) != (Local_u8TempValidator & 0b00001111))
+				{
+					Local_u8IDExistsFlag = 0;
+				}
+				else if((Local_u8IDBufferArray[Local_u8ValidateCounter * 2 + 1] & 0b00001111) != (Local_u8TempValidator >> 4))
+				{
+					Local_u8IDExistsFlag = 0;
+				}
+
+				if(Local_u8IDExistsFlag == 0)
+				{
+					break;
+				}
+			}
+
+			if(Local_u8IDExistsFlag == 1)
+			{
+
+				Local_u16PasswordAddress = Main_u16GetPasswordAddress(Local_u8IDsCounter);
+				Local_u8VerifiedFlag = 1;
+				for(Local_u8ValidateCounter = 0; Local_u8ValidateCounter < 4; Local_u8ValidateCounter++)
+				{
+					EEPROM_u8ReadDataByte(Local_u16PasswordAddress + Local_u8ValidateCounter, &Local_u8TempValidator);
+					/*
+					 * 0 -> 0, 1
+					 * 1 -> 2, 3
+					 * 2 -> 4, 5
+					 * 3 -> 6, 7
+					 */
+					if((Local_u8PasswordBufferArray[Local_u8ValidateCounter * 2 + 0] & 0b00001111) != (Local_u8TempValidator & 0b00001111))
+					{
+						Local_u8VerifiedFlag = 0;
+					}
+					else if((Local_u8PasswordBufferArray[Local_u8ValidateCounter * 2 + 1] & 0b00001111) != (Local_u8TempValidator >> 4))
+					{
+						Local_u8VerifiedFlag = 0;
+					}
+
+					if(Local_u8VerifiedFlag == 0)
+					{
+						break;
+					}
+				}
+
+				CLCD_voidClearDisplay();
+				Local_u16AttendedDaysAddress = Main_u16GetAttendedDaysAddress(Local_u8IDsCounter);
+				EEPROM_u8ReadDataByte(Local_u16AttendedDaysAddress + 0 + 100, &Local_u8TempValidator);
+				Local_u16TotalAttendedDays = (uint16) Local_u8TempValidator;
+				EEPROM_u8ReadDataByte(Local_u16AttendedDaysAddress + 1 + 100, &Local_u8TempValidator);
+				Local_u16TotalAttendedDays = (Local_u16TotalAttendedDays << 8) | ((uint16) Local_u8TempValidator);
+				CLCD_u8GoToXY(0, 0);
+				CLCD_voidSendDecimalNumber(Local_u16TotalAttendedDays);
+				break;
+			}
+		}
+
+		if(Local_u8IDExistsFlag == 0)
+		{
+			CLCD_u8GoToXY(0, 0);
+			CLCD_u8SendString("id is not found!");
+		}
+		else if(Local_u8VerifiedFlag == 0)
+		{
+			CLCD_u8GoToXY(0, 1);
+			CLCD_u8SendString("pass is wrong!");
+		}
+		else
+		{
+			CLCD_u8GoToXY(0, 1);
+			CLCD_u8SendString("welcome!");
+		}
+		while(1);
+
+
+
+
+
+
+
+
+//		for(Local_u8IDsCounter = 0; Local_u8IDsCounter < 100; Local_u8IDsCounter++)
+//		{
+//			Local_u8IDExistsFlag = 1;
+//			Local_u8IDAddress = Main_u8GetIDAddress(Local_u8IDsCounter);
+//
+//			for(Local_u8ValidateCounter = 0; Local_u8ValidateCounter < 4; Local_u8ValidateCounter++)
+//			{
+//				EEPROM_u8ReadDataByte(Local_u8IDAddress + Local_u8ValidateCounter, &Local_u8TempValidator);
+//
+//				/*
+//				 * 0 -> 0, 1
+//				 * 1 -> 2, 3
+//				 * 2 -> 4, 5
+//				 * 3 -> 6, 7
+//				 */
+//				if((Local_u8IDBufferArray[Local_u8ValidateCounter * 2 + 0] & 0b00001111) != (Local_u8TempValidator && 0b00001111))
+//				{
+//					Local_u8IDExistsFlag = 0;
+//				}
+//				else if((Local_u8IDBufferArray[Local_u8ValidateCounter * 2 + 1] & 0b00001111) != (Local_u8TempValidator >> 4))
+//				{
+//					Local_u8IDExistsFlag = 0;
+//				}
+//
+//				if(Local_u8IDExistsFlag == 0)
+//				{
+//					break;
+//				}
+//			}
+//
+//			if(Local_u8IDExistsFlag == 1)
+//			{
+//				Local_u8PasswordAddress = Main_u8GetPasswordAddress(Local_u8IDsCounter);
+//				Local_u8VerifiedFlag = 1;
+//				for(Local_u8ValidateCounter = 0; Local_u8ValidateCounter < 4; Local_u8ValidateCounter++)
+//				{
+//					EEPROM_u8ReadDataByte(Local_u8PasswordAddress + Local_u8ValidateCounter, &Local_u8TempValidator);
+//
+//					/*
+//					 * 0 -> 0, 1
+//					 * 1 -> 2, 3
+//					 * 2 -> 4, 5
+//					 * 3 -> 6, 7
+//					 */
+//					if(Local_u8IDBufferArray[Local_u8ValidateCounter * 2 + 0] != (Local_u8TempValidator && 0b00001111))
+//					{
+//						Local_u8VerifiedFlag = 0;
+//					}
+//					else if(Local_u8IDBufferArray[Local_u8ValidateCounter * 2 + 1] != (Local_u8TempValidator >> 4))
+//					{
+//						Local_u8VerifiedFlag = 0;
+//					}
+//
+//					if(Local_u8VerifiedFlag == 0)
+//					{
+//						break;
+//					}
+//				}
+//
+//				Local_u8AttendedDaysAddress = Main_u8GetAttendedDaysAddress(Local_u8IDsCounter);
+//				for(Local_u8ValidateCounter = 0; Local_u8ValidateCounter < 2; Local_u8ValidateCounter++)
+//				{
+//					Local_u8AttendedFlag = 1;
+//					EEPROM_u8ReadDataByte(Local_u8AttendedDaysAddress + Local_u8ValidateCounter, &Local_u8TempValidator);
+//					switch(Local_u8TempValidator)
+//					{
+//					case 0u:
+//						SET_BIT(Local_u8TempValidator, 0u);
+//						break;
+//
+//					case 1u:
+//						SET_BIT(Local_u8TempValidator, 1u);
+//						break;
+//
+//					case 3u:
+//						SET_BIT(Local_u8TempValidator, 2u);
+//						break;
+//
+//					case 7u:
+//						SET_BIT(Local_u8TempValidator, 3u);
+//						break;
+//
+//					case 15u:
+//						SET_BIT(Local_u8TempValidator, 4u);
+//						break;
+//
+//					case 31u:
+//						SET_BIT(Local_u8TempValidator, 5u);
+//						break;
+//
+//					case 63u:
+//						SET_BIT(Local_u8TempValidator, 6u);
+//						break;
+//
+//					case 127u:
+//						SET_BIT(Local_u8TempValidator, 7u);
+//						break;
+//
+//					case 255u:
+//						Local_u8AttendedFlag = 0;
+//						break;
+//					}
+//
+//					if(Local_u8AttendedFlag == 1)
+//					{
+//						break;
+//					}
+//				}
+//				break;
+//			}
+//		}
+//
+//		CLCD_voidClearDisplay();
+//		CLCD_u8GoToXY(0, 0);
+//
+//		if(Local_u8IDExistsFlag == 0)
+//		{
+//			/*ID is not found*/
+//			CLCD_u8SendString("ID is not found!");
+//		}
+//
+//		if((Local_u8IDExistsFlag == 1) && (Local_u8VerifiedFlag == 0))
+//		{
+//			/*Password is not correct*/
+//			CLCD_u8SendString("Password is not correct!");
+//		}
+//	}
+	}
+}
+
+uint16 Main_u16GetIDAddress(uint8 Copy_u8IDNumber)
+{
+	return (0 + Copy_u8IDNumber * 4);
+}
+
+uint16 Main_u16GetPasswordAddress(uint8 Copy_u8IDNumber)
+{
+	return (400 + Copy_u8IDNumber * 4);
+}
+
+uint16 Main_u16GetAttendedDaysAddress(uint8 Copy_u8IDNumber)
+{
+	return (800 + Copy_u8IDNumber * 2);
+}
+
+uint16 Main_u16IsIDExist(uint8 *Copy_u8IDBufferArray)
+{
+
+}
+
+void Main_voidTimer0Schedule(void)
+{
+	static uint16 Local_u16Counter = 0;
+	Local_u16Counter++;
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN5, DIO_u8PIN_HIGH);
+
+	if(Local_u16Counter == 8000)
+	{
+		CLCD_voidClearDisplay();
+		CLCD_u8GoToXY(0, 0);
+		CLCD_u8SendString("Sign up -> 1");
+		CLCD_u8GoToXY(0, 1);
+		CLCD_u8SendString("Login -> 2");
+	}
+	else if(Local_u16Counter == 16000)
+	{
+		CLCD_voidClearDisplay();
+		CLCD_u8GoToXY(0, 0);
+		CLCD_u8SendString("View record -> 3");
+		CLCD_u8GoToXY(0, 1);
+		CLCD_u8SendString("Change pass -> 4");
+		Local_u16Counter = 0;
+	}
+}

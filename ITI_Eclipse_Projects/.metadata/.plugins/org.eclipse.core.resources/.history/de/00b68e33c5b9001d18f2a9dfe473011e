@@ -1,0 +1,193 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+
+#include <util/delay.h>
+
+
+
+void main(void)
+{
+	/*Define Variables*/
+	sint8 Local_s8FirstCounter = 0;
+	sint8 Local_s8OPerationCounter = 0;
+	sint8 Local_s8SecondCounter = 0;
+	sint8 Local_s8Result;
+	uint8 Local_u8ArrowCounter = 0;
+	uint8 Local_u8Min;
+	uint8 Local_u8SecondFlag;
+	uint16 Local_u16AssResult;
+
+	/*
+	 * PORT Description:
+	 * 1- DIO_PORTD_PIN0 -> DIO_PORTD_PIN2: INPUT, INTERNAL_PULL_UP
+	 * 2- DIO_PORTA_PIN0 -> DIO_PORTA_PIN2: OUTPUT
+	 * 3- DIO_PORTB_PIN4 -> DIO_PORTB_PIN7: OUTPUT
+	 */
+	PORT_voidInit();
+
+	/*Initialize enter button*/
+	uint8 Local_u8EnterButton = 1;
+
+	/*Initialize up and down arrows*/
+	uint8 Local_u8UpButton = 1;
+	uint8 Local_u8DownButton = 1;
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	while(1)
+	{
+		/*Get the values of the buttons*/
+		DIO_u8GetPinValue(DIO_u8PORTD, DIO_u8PIN0, &Local_u8EnterButton);
+		DIO_u8GetPinValue(DIO_u8PORTD, DIO_u8PIN1, &Local_u8UpButton);
+		DIO_u8GetPinValue(DIO_u8PORTD, DIO_u8PIN2, &Local_u8DownButton);
+
+		/*Manage pushes of the buttons*/
+		if(Local_u8UpButton == 0)
+		{
+			switch(Local_u8ArrowCounter)
+			{
+			case 0:	Local_s8FirstCounter++;	break;
+			case 1:	Local_s8OPerationCounter++;	break;
+			case 2:	Local_s8SecondCounter++;	break;
+			}
+			_delay_ms(250);
+		}
+		if(Local_u8DownButton == 0)
+		{
+			switch(Local_u8ArrowCounter)
+			{
+			case 0:	Local_s8FirstCounter--;	break;
+			case 1:	Local_s8OPerationCounter--;	break;
+			case 2:	Local_s8SecondCounter--;	break;
+			}
+			_delay_ms(250);
+		}
+		if(Local_u8EnterButton == 0)
+		{
+			/*If enter is pressed erase the arrow then increment the arrow to the next digit*/
+			CLCD_u8GoToXY(Local_u8ArrowCounter, 1);
+			CLCD_voidSendData(1);
+			Local_u8ArrowCounter++;
+			_delay_ms(250);
+		}
+
+		/*Manage display of the arrow*/
+		if(Local_u8ArrowCounter <= 2)
+		{
+			CLCD_voidSendSpecialCharacter(Local_u8UpwordArrow, 0, Local_u8ArrowCounter, 1);
+		}
+
+		/*Manage display of the first digit*/
+		if(Local_u8ArrowCounter == 0)
+		{
+			if(Local_s8FirstCounter > 9)
+			{
+				Local_s8FirstCounter = 0;
+			}
+			else if(Local_s8FirstCounter < 0)
+			{
+				Local_s8FirstCounter = 9;
+			}
+
+			CLCD_u8GoToXY(0,0);
+			CLCD_voidSendDecimalNumber(Local_s8FirstCounter);
+		}
+		/*Manage display of the operator*/
+		else if(Local_u8ArrowCounter == 1)
+		{
+			if(Local_s8OPerationCounter < 0)
+			{
+				Local_s8OPerationCounter = 4;
+			}
+			else if(Local_s8OPerationCounter > 4)
+			{
+				Local_s8OPerationCounter = 0;
+			}
+
+			CLCD_u8GoToXY(1, 0);
+			switch(Local_s8OPerationCounter)
+			{
+			case 0: CLCD_voidSendData('+');	break;
+			case 1: CLCD_voidSendData('-');	break;
+			case 2: CLCD_voidSendData('*');	break;
+			case 3: CLCD_voidSendData('/');	break;
+			case 4: CLCD_voidSendData('%');	break;
+			}
+		}
+		/*Manage display of the second digit*/
+		else if(Local_u8ArrowCounter == 2)
+		{
+			if(Local_s8OPerationCounter > 2)
+			{
+				Local_u8Min = 1;
+			}
+			else
+			{
+				Local_u8Min = 0;
+			}
+
+			if(Local_s8SecondCounter > 9)
+			{
+				Local_s8SecondCounter = Local_u8Min;
+			}
+			else if(Local_s8SecondCounter < Local_u8Min)
+			{
+				Local_s8SecondCounter = 9;
+			}
+
+			if((Local_u8Min == 1) && (Local_u8SecondFlag == 0))
+			{
+				Local_s8SecondCounter = 1;
+				Local_u8SecondFlag = 1;
+			}
+
+			CLCD_u8GoToXY(2, 0);
+			CLCD_voidSendDecimalNumber(Local_s8SecondCounter);
+		}
+		/*Calculate and print the result*/
+		else if(Local_u8ArrowCounter == 3)
+		{
+			/*Display equal sign*/
+			CLCD_u8GoToXY(3, 0);
+			CLCD_voidSendData('=');
+
+			/*Calculate the result according to the operator*/
+			switch(Local_s8OPerationCounter)
+			{
+			case 0:	Local_s8Result = Local_s8FirstCounter + Local_s8SecondCounter;	break;
+			case 1:	Local_s8Result = Local_s8FirstCounter - Local_s8SecondCounter;	break;
+			case 2:	Local_s8Result = Local_s8FirstCounter * Local_s8SecondCounter;	break;
+			case 3:	Local_s8Result = Local_s8FirstCounter / Local_s8SecondCounter;	break;
+			case 4:	Local_s8Result = Local_s8FirstCounter % Local_s8SecondCounter;	break;
+			}
+
+			/*Display the result*/
+			CLCD_voidSendDecimalNumber(Local_s8Result);
+
+			/*If the result contain floating result print it with resolution 3 digits*/
+			if((Local_s8OPerationCounter == 3) && (Local_s8FirstCounter % Local_s8SecondCounter > 0))
+			{
+				Local_u16AssResult = (((Local_s8FirstCounter % Local_s8SecondCounter) * 1.0) / Local_s8SecondCounter) * 1000;
+				CLCD_u8GoToXY(5, 0);
+				CLCD_voidSendData('.');
+				CLCD_voidSendDecimalNumber(Local_u16AssResult);
+			}
+
+			/*Display the arrow under the result*/
+			CLCD_voidSendSpecialCharacter(Local_u8UpwordArrow, 0, 4, 1);
+
+			/*Delay to display the result*/
+			_delay_ms(3000);
+			CLCD_voidClearDisplay();
+
+			/*Set the arrow to 0 to continue calculating*/
+			Local_u8ArrowCounter = 0;
+		}
+	}
+}

@@ -1,0 +1,37 @@
+#include "STD_TYPES.h"
+#include "LIBRARY_interface.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "TIMERS_interface.h"
+#include "GIE_interface.h"
+#include "ADC_interface.h"
+#include "EXTI_interface.h"
+#include "UART_interface.h"
+
+#include "CLCD_interface.h"
+
+#include "PWM_interface.h"
+#include "ICU_interface.h"
+#include "SCHED_interface.h"
+
+#include <util/delay.h>
+
+void Main_voidMeasureDistance(void);
+static uint16 Main_u16Reading1;
+static uint16 Main_u16Reading2;
+
+/*It is the main*/
+void main(void)
+{
+	PORT_voidInit();
+//	CLCD_voidInit();
+
+	USART_voidInit();
+
+	while(1)
+	{
+		USART_voidTransmit('H');
+		_delay_ms(10);
+	}
+}

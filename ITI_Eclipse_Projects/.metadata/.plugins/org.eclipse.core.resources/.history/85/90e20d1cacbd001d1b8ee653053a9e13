@@ -1,0 +1,217 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+
+#include <util/delay.h>
+
+
+
+void main(void)
+{
+	/*Define Variables*/
+	uint8 Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+	uint32 Local_u32FirstNumber = 0;
+	uint8 Local_u8SecondNumber = 0;
+	uint8 Local_u8TenIndex = 1;
+	uint8 Local_u8TempNumber = 0;
+	uint8 Local_u8ArrowCounter = 0;
+	uint8 Local_u8DigitsCounter = 0;
+	uint8 Local_u8ResultFlag = 0;
+	uint8 Local_u8OperationIndex = 0;
+
+	/*
+	 * PORT Description:
+	 * 1- DIO_PORTD_PIN0 -> DIO_PORTD_PIN2: INPUT, INTERNAL_PULL_UP
+	 * 2- DIO_PORTA_PIN0 -> DIO_PORTA_PIN2: OUTPUT
+	 * 3- DIO_PORTB_PIN4 -> DIO_PORTB_PIN7: OUTPUT
+	 */
+	PORT_voidInit();
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	while(1)
+	{
+		/*Get the pressed key*/
+		Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+		CLCD_u8GoToXY(Local_u8DigitsCounter, 0);
+		if(Local_u8ArrowCounter == 0)
+		{
+			switch(Local_u8PressedKey)
+			{
+			/*In case that the input is operation sign, Ignore it*/
+			case '+':
+			case '-':
+			case '*':
+			case '/':
+				Local_u8DigitsCounter++;
+				CLCD_voidSendData(Local_u8PressedKey);
+				break;
+
+				/*
+				 * In case that the input is equal sign, Search for the first number
+				 * if the first number is still 0, Ignore the equal sign,
+				 * if the first number isn't 0, Print it to the lcd
+				 * */
+			case '=':
+				Local_u8DigitsCounter++;
+				CLCD_voidSendData(Local_u8PressedKey);
+				if(Local_u32FirstNumber == 0)
+				{
+					Local_u8DigitsCounter--;
+				}
+				else
+				{
+					Local_u8ArrowCounter++;
+					CLCD_voidSendDecimalNumber(Local_u32FirstNumber);
+				}
+				break;
+				/*
+				 * In case that the input is dot, Search for the first number,
+				 * if the first number is still 0, Ignore the dot,
+				 * if the first number isn't 0, turn into the dot calculation
+				 * */
+			case '.':
+				Local_u8DigitsCounter++;
+				CLCD_voidSendData(Local_u8PressedKey);
+				break;
+
+			/*In case that the input is number, Calculate the first number*/
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				Local_u8DigitsCounter++;
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_u8PressedKey = Local_u8PressedKey * Local_u8TenIndex;
+				Local_u32FirstNumber = Local_u32FirstNumber * 10;
+				Local_u32FirstNumber = Local_u32FirstNumber + Local_u8PressedKey;
+				break;
+			}
+		}
+
+		CLCD_u8GoToXY(0,1);
+		CLCD_voidSendDecimalNumber(Local_u32FirstNumber);
+
+//		/*Calculate the first number*/
+//		if(Local_u8ArrowCounter == 0)
+//		{
+//			switch(Local_u8PressedKey)
+//			{
+//			case '+':
+//			case '-':
+//			case '*':
+//			case '/':
+//			case '%':
+//			case '.':
+//				Local_u8DigitsCounter++;
+//				CLCD_voidSendData(Local_u8PressedKey);
+//
+//				if(Local_u8FirstNumber == 0)
+//				{
+//					CLCD_u8GoToXY(0, 0);
+//					break;
+//				}
+//				else
+//				{
+//					Local_u8ArrowCounter++;
+//					Local_u8TenIndex = 1;
+//					break;
+//				}
+//			default:
+////				Local_u8DigitsCounter++;
+//				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+//				Local_u8PressedKey = Local_u8PressedKey * Local_u8TenIndex;
+//				Local_u8FirstNumber = Local_u8FirstNumber + Local_u8PressedKey;
+//				Local_u8TenIndex = Local_u8TenIndex * 10;
+//				break;
+//			}
+//		}
+//
+//		/*Check the operation*/
+//		if(Local_u8ArrowCounter == 1)
+//		{
+//			switch(Local_u8PressedKey)
+//			{
+//
+//			case '+':
+//			case '-':
+//			case '*':
+//			case '/':
+//			case '.':
+//			case '%':
+//				Local_u8OperationIndex = Local_u8PressedKey;	Local_u8ArrowCounter++;	break;
+//
+//
+//			case '=':
+//				CLCD_voidSendDecimalNumber(Local_u8FirstNumber);
+//				Local_u8ResultFlag = 1;
+////				Local_u8ArrowCounter++;
+//				break;
+//			}
+//		}
+//
+//		/*Calculate the second number*/
+//		if(Local_u8ArrowCounter == 2)
+//		{
+//			switch(Local_u8PressedKey)
+//			{
+//			case '=':
+//				if(Local_u8SecondNumber == 0)
+//				{
+//					CLCD_u8GoToXY(0, 0);
+//					break;
+//				}
+//				else
+//				{
+//					Local_u8ArrowCounter++;
+//					Local_u8TenIndex = 1;
+//					break;
+//				}
+//			case '+':
+//			case '-':
+//			case '*':
+//			case '/':
+//			case '.':
+//			case '%':
+//				if(Local_u8SecondNumber == 0)
+//				{
+//					Local_u8DigitsCounter++;
+//					CLCD_voidSendData(Local_u8PressedKey);
+//					break;
+//				}
+//				else
+//				{
+//					CLCD_voidSendData(Local_u8PressedKey);
+//					CLCD_u8GoToXY(Local_u8DigitsCounter, 0);
+//					break;
+//				}
+//			default:
+////				Local_u8DigitsCounter++;
+//				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+//				Local_u8PressedKey = Local_u8PressedKey * Local_u8TenIndex;
+//				Local_u8SecondNumber = Local_u8SecondNumber + Local_u8PressedKey;
+//				Local_u8TenIndex = Local_u8TenIndex * 10;
+//				break;
+//			}
+//		}
+//
+//		/*If the program finished its work, stop here*/
+//		if(Local_u8ResultFlag == 1)
+//		{
+//			while(1);
+//		}
+//	}
+}
+}

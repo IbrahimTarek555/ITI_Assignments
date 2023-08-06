@@ -1,0 +1,88 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+#include "MOTOR_interface.h"
+
+#include <util/delay.h>
+
+
+void main(void)
+{
+	/*Define Variables*/
+	uint8 Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+
+	/*Port Initialization*/
+	PORT_voidInit();
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	/*Motor Type*/
+	MOTOR_t Local_motortMotor1;
+	Local_motortMotor1.Port = DIO_u8PORTC;
+	Local_motortMotor1.Pin1 = DIO_u8PIN3;
+	Local_motortMotor1.Pin2 = DIO_u8PIN4;
+
+	/*Motor is stop*/
+	MOTOR_u8Stop(&Local_motortMotor1);
+
+	/*Red LED*/
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN2, DIO_u8PIN_LOW);
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_LOW);
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_HIGH);
+
+	while(1)
+	{
+		CLCD_u8GoToXY(0, 0);
+		CLCD_u8SendString("Enter 1 for C.W");
+		CLCD_u8GoToXY(0, 1);
+		CLCD_u8SendString("Enter 2 for CC.W");
+
+		Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+
+		if(Local_u8PressedKey == 1)
+		{
+			MOTOR_u8RotateCW(&Local_motortMotor1);
+			CLCD_voidClearDisplay();
+			CLCD_u8GoToXY(0, 0);
+			CLCD_u8SendString("Rotating C.W");
+			/*Green LED*/
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN2, DIO_u8PIN_HIGH);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_LOW);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_LOW);
+			_delay_ms(3000);
+			CLCD_voidClearDisplay();
+		}
+		else if(Local_u8PressedKey == 2)
+		{
+			MOTOR_u8RotateCCW(&Local_motortMotor1);
+			CLCD_voidClearDisplay();
+			CLCD_u8GoToXY(0, 0);
+			CLCD_u8SendString("Rotating CC.W");
+			/*Yellow LED*/
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN2, DIO_u8PIN_LOW);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_HIGH);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_LOW);
+			_delay_ms(3000);
+			CLCD_voidClearDisplay();
+		}
+		else if(Local_u8PressedKey == 3)
+		{
+			MOTOR_u8Stop(&Local_motortMotor1);
+			CLCD_voidClearDisplay();
+			CLCD_u8GoToXY(0, 0);
+			CLCD_u8SendString("Motor is stopped");
+			/*Red LED*/
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN2, DIO_u8PIN_LOW);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_LOW);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_HIGH);
+			_delay_ms(3000);
+			CLCD_voidClearDisplay();
+		}
+	}
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;USART_Lec2LinkWithBluetoothApp/main.c&apos; to &apos;main1&apos;" description="Rename resource &apos;main.c&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="main.c" name="main1" stamp="1686400841212" updateReferences="true"/>
+</session>

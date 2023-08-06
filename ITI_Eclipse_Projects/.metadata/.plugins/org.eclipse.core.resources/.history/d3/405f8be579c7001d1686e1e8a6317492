@@ -1,0 +1,153 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+#include "STEPPER_interface.h"
+#include "MOTOR_interface.h"
+
+#include <util/delay.h>
+
+
+void main(void)
+{
+	/*Define Variables*/
+	uint8 Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+	uint8 Local_u8HamokshaCounter = 0u;
+	uint8 Local_u8EntryCondition = 1u;
+	uint8 Local_u8DCMotorRun = 0u;
+
+	/*Initialize Ports*/
+	PORT_voidInit();
+
+	/*Initialize the LCD*/
+	CLCD_voidInit();
+
+	/*Declaring STEPPER Motor*/
+	STEPPER_t Local_steppertMyMotor;
+	Local_steppertMyMotor.Port = DIO_u8PORTC;
+	Local_steppertMyMotor.BluePin = DIO_u8PIN0;
+	Local_steppertMyMotor.PinkPin = DIO_u8PIN1;
+	Local_steppertMyMotor.YellowPin = DIO_u8PIN2;
+	Local_steppertMyMotor.OrangePin = DIO_u8PIN3;
+
+	/*Declaring DC Motor*/
+	MOTOR_t Local_motortMyMotor;
+	Local_motortMyMotor.Port = DIO_u8PORTC;
+	Local_motortMyMotor.Pin1 = DIO_u8PIN4;
+	Local_motortMyMotor.Pin2 = DIO_u8PIN5;
+
+	/*
+	 * Welcome message on the screen,
+	 * Hamoksha goes from left to right and still right until the end of the program,
+	 * then print welcome to the lcd.
+	 * */
+	do
+	{
+		CLCD_voidClearDisplay();
+		CLCD_voidSendSpecialCharacter(Local_u8Hamoksha1, 0, Local_u8HamokshaCounter, 0);
+		CLCD_voidSendSpecialCharacter(Local_u8Hamoksha2, 1, Local_u8HamokshaCounter, 1);
+		Local_u8HamokshaCounter++;
+		_delay_ms(250);
+	}while(Local_u8HamokshaCounter < 16u);
+
+	CLCD_u8GoToXY(2u, 1u);
+	CLCD_u8SendString("Welcome!");
+	_delay_ms(2000);
+	CLCD_u8GoToXY(0u, 3u);
+	CLCD_u8SendString("        ");
+
+	while(1)
+	{
+		if(Local_u8EntryCondition == 1u)
+		{
+			/*Print Instructions to the user*/
+			CLCD_u8GoToXY(0u, 0u);
+			CLCD_u8SendString("DC MOTOR -> 1");
+			CLCD_u8GoToXY(0u, 1u);
+			CLCD_u8SendString("STEPPER -> 2");
+		}
+
+		/*Get the pressed key*/
+		Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+
+		switch(Local_u8PressedKey)
+		{
+		/*Case the DC MOTOR*/
+		case 1u:
+			/*Clear the used part of lcd*/
+			CLCD_u8GoToXY(0u, 0u);
+			CLCD_u8SendString("          ");
+			CLCD_u8GoToXY(0u, 1u);
+			CLCD_u8SendString("          ");
+
+			/*
+			 * Print Instructions to the user:
+			 * for cw press 1,
+			 * for ccw press 2.
+			 * */
+			CLCD_u8GoToXY(0u, 0u);
+			CLCD_u8SendString("Rotate CW -> 1");
+			CLCD_u8GoToXY(0u, 1u);
+			CLCD_u8SendString("Rotate CCW -> 2");
+
+			/*Get the Rotation direction from the user*/
+			while(1)
+			{
+				Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+				switch(Local_u8PressedKey)
+				{
+				/*Case CW*/
+				case 1u:
+					MOTOR_u8RotateCW(&Local_motortMyMotor);
+					Local_u8DCMotorRun = 1;
+					break;
+
+				/*Case CCW*/
+				case 2u:
+					MOTOR_u8RotateCCW(&Local_motortMyMotor);
+					Local_u8DCMotorRun = 1;
+					break;
+
+				default:
+					Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+					break;
+				}
+
+				if(Local_u8DCMotorRun == 1)
+				{
+					break;
+				}
+			}
+
+			while(1)
+			{
+				Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+				switch(Local_u8PressedKey)
+				{
+				case 0:
+					MOTOR_u8Stop(&Local_motortMyMotor);
+					Local_u8DCMotorRun = 0u;
+					break;
+
+				default:
+					Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+					break;
+				}
+
+				if(Local_u8DCMotorRun == 0u)
+				{
+					break;
+				}
+			}
+			break;
+
+		case 2:
+		default: Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;	break;
+		}
+
+	}
+}

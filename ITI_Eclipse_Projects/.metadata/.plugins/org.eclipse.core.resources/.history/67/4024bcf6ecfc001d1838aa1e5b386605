@@ -1,0 +1,26 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: TIMER Tarek			**********************/
+/**********************			File: USART_program.c		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file USART_program.c
+ * @author Ibrahim Tarek
+ * @brief This file implements the USART module functions.
+ * @version 1.00
+ */
+
+#include "STD_TYPES.h"
+#include "BIT_MATH.h"
+#include "DEFINES.h"
+
+#include "UART_interface.h"
+#include "UART_config.h"
+#include "UART_private.h"
+#include "UART_register.h"
+
+
+void USART_voidInit(void);

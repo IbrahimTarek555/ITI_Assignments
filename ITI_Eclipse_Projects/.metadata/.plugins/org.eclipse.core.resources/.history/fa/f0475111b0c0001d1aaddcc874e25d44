@@ -1,0 +1,329 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+
+#include <util/delay.h>
+
+
+void main(void)
+{
+	/*Define Variables*/
+	sint8 Local_s8ArrowCounter = 0;
+	uint8 Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+
+	uint8 Local_u8FirstFlag = 0;
+	uint8 Local_u8SecondFlag = 0;
+	uint8 Local_u8CountingFlag = 0;
+
+	sint8 Local_s8SecondsCounter = 0;
+	sint8 Local_s8MinutesCounter = 0;
+	sint8 Local_s8HoursCounter = 0;
+
+	uint8 Local_u8Hours = 0;
+	uint8 Local_u8FirstHoursDigit = 0;
+	uint8 Local_u8SecondHoursDigit = 0;
+
+	uint8 Local_u8Minutes = 0;
+	uint8 Local_u8FirstMinutesDigit = 0;
+	uint8 Local_u8SecondMinutesDigit = 0;
+
+	uint8 Local_u8Seconds;
+	uint8 Local_u8FirstSecondsDigit = 0;
+	uint8 Local_u8SecondSecondsDigit = 0;
+
+	/*Port Initialization*/
+	PORT_voidInit();
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	CLCD_u8GoToXY(0, 0);
+	CLCD_u8SendString("00:00:00");
+
+	/*Green LED*/
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN2, DIO_u8PIN_HIGH);
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_LOW);
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_LOW);
+
+	while(1)
+	{
+		Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+
+		/*Manage control Keys*/
+		if(Local_u8PressedKey == 11)
+		{
+			CLCD_voidSendSpecialCharacter(Local_u8EraseCharacter, 1, Local_s8ArrowCounter, 1);
+			Local_s8ArrowCounter++;
+		}
+		else if(Local_u8PressedKey == 22)
+		{
+			CLCD_voidSendSpecialCharacter(Local_u8EraseCharacter, 1, Local_s8ArrowCounter, 1);
+			Local_s8ArrowCounter--;
+		}
+		else if(Local_u8PressedKey == 33)
+		{
+			/*Yellow LED*/
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN2, DIO_u8PIN_LOW);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_HIGH);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_LOW);
+
+			Local_u8CountingFlag = 1;
+		}
+
+		/*Correct the arrow flag value*/
+		if(Local_s8ArrowCounter < 0)
+		{
+			Local_s8ArrowCounter = 0;
+		}
+		else if(Local_s8ArrowCounter > 7)
+		{
+			Local_s8ArrowCounter = 7;
+		}
+
+		/*Manage moving between digits*/
+		switch(Local_s8ArrowCounter)
+		{
+		case 0:
+			CLCD_u8GoToXY(Local_s8ArrowCounter, 0);
+			switch(Local_u8PressedKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_u8FirstHoursDigit = Local_u8PressedKey;
+				break;
+			}
+			break;
+
+		case 1:
+			CLCD_u8GoToXY(Local_s8ArrowCounter, 0);
+			Local_u8FirstFlag = 0;
+			switch(Local_u8PressedKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_u8SecondHoursDigit = Local_u8PressedKey;
+				break;
+			}
+			break;
+
+		case 2:
+			if(Local_u8FirstFlag == 0)
+			{
+				Local_s8ArrowCounter++;
+			}
+			else if(Local_u8FirstFlag == 1)
+			{
+				Local_s8ArrowCounter--;
+			}
+			break;
+
+		case 3:
+			CLCD_u8GoToXY(Local_s8ArrowCounter, 0);
+			Local_u8FirstFlag = 1;
+			switch(Local_u8PressedKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_u8FirstMinutesDigit = Local_u8PressedKey;
+				break;
+			}
+			break;
+
+
+		case 4:
+			CLCD_u8GoToXY(Local_s8ArrowCounter, 0);
+			Local_u8SecondFlag = 0;
+			switch(Local_u8PressedKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_u8SecondMinutesDigit = Local_u8PressedKey;
+				break;
+			}
+			break;
+
+		case 5:
+			if(Local_u8SecondFlag == 0)
+			{
+				Local_s8ArrowCounter++;
+			}
+			else if(Local_u8SecondFlag == 1)
+			{
+				Local_s8ArrowCounter--;
+			}
+			break;
+
+		case 6:
+			CLCD_u8GoToXY(Local_s8ArrowCounter, 0);
+			Local_u8SecondFlag = 1;
+			switch(Local_u8PressedKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_u8FirstSecondsDigit = Local_u8PressedKey;
+				break;
+			}
+			break;
+
+		case 7:
+			CLCD_u8GoToXY(Local_s8ArrowCounter, 0);
+			switch(Local_u8PressedKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_u8SecondSecondsDigit = Local_u8PressedKey;
+				break;
+			}
+			break;
+		}
+
+		if(Local_u8CountingFlag == 1)
+		{
+			CLCD_u8GoToXY(0, 1);
+			CLCD_u8SendString("        ");
+			Local_u8Hours = Local_u8SecondHoursDigit + Local_u8FirstHoursDigit * 10;
+			Local_u8Minutes = Local_u8SecondMinutesDigit + Local_u8FirstMinutesDigit * 10;
+			Local_u8Seconds = Local_u8SecondSecondsDigit + Local_u8FirstSecondsDigit * 10;
+
+			for(Local_s8SecondsCounter = Local_u8Seconds; Local_s8SecondsCounter >= 0; Local_s8SecondsCounter--)
+			{
+				CLCD_u8GoToXY(6, 0);
+				if(Local_s8SecondsCounter < 10)
+				{
+					CLCD_voidSendData('0');
+				}
+					CLCD_voidSendDecimalNumber(Local_s8SecondsCounter);
+				_delay_ms(1000);
+			}
+
+			for(Local_s8MinutesCounter = Local_u8Minutes - 1; Local_s8MinutesCounter >= 0; Local_s8MinutesCounter--)
+			{
+				CLCD_u8GoToXY(3, 0);
+				if(Local_s8MinutesCounter < 10)
+				{
+					CLCD_voidSendData('0');
+				}
+				CLCD_voidSendDecimalNumber(Local_s8MinutesCounter);
+
+				for(Local_s8SecondsCounter = 59; Local_s8SecondsCounter >= 0; Local_s8SecondsCounter--)
+				{
+					CLCD_u8GoToXY(6, 0);
+					if(Local_s8SecondsCounter < 10)
+					{
+						CLCD_voidSendData('0');
+					}
+					CLCD_voidSendDecimalNumber(Local_s8SecondsCounter);
+					_delay_ms(1000);
+				}
+			}
+
+			for(Local_s8HoursCounter = Local_u8Hours - 1; Local_s8HoursCounter >= 0; Local_s8HoursCounter--)
+			{
+				CLCD_u8GoToXY(0, 0);
+				if(Local_s8HoursCounter < 10)
+				{
+					CLCD_voidSendData('0');
+				}
+				CLCD_voidSendDecimalNumber(Local_s8HoursCounter);
+
+
+				for(Local_s8MinutesCounter = 59; Local_s8MinutesCounter >= 0; Local_s8MinutesCounter--)
+				{
+					CLCD_u8GoToXY(3, 0);
+					if(Local_s8MinutesCounter < 10)
+					{
+						CLCD_voidSendData('0');
+					}
+					CLCD_voidSendDecimalNumber(Local_s8MinutesCounter);
+
+					for(Local_s8SecondsCounter = 59; Local_s8SecondsCounter >= 0; Local_s8SecondsCounter--)
+					{
+						CLCD_u8GoToXY(6, 0);
+						if(Local_s8SecondsCounter < 10)
+						{
+							CLCD_voidSendData('0');
+						}
+						CLCD_voidSendDecimalNumber(Local_s8SecondsCounter);
+						_delay_ms(1000);
+					}
+				}
+			}
+
+			/*Red LED*/
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN2, DIO_u8PIN_LOW);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_LOW);
+			DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_HIGH);
+
+			CLCD_voidSendSpecialCharacter(Local_u8Hamoksha, 2, 0, 1);
+			CLCD_u8GoToXY(1, 1);
+			CLCD_u8SendString(":Time is up!");
+			while(1)
+			{
+
+			};
+		}
+
+//		CLCD_u8GoToXY(0,0);
+//		CLCD_voidSendDecimalNumber(Local_u8ArrowCounter);
+		CLCD_voidSendSpecialCharacter(Local_u8UpwordArrow, 0, Local_s8ArrowCounter, 1);
+	}
+}

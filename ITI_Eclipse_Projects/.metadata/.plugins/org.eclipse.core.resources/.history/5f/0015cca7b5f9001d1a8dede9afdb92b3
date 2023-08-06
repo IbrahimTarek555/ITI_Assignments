@@ -1,0 +1,303 @@
+#include "STD_TYPES.h"
+#include "LIBRARY_interface.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "TIMERS_interface.h"
+#include "GIE_interface.h"
+#include "ADC_interface.h"
+#include "EXTI_interface.h"
+
+#include "CLCD_interface.h"
+
+#include <util/delay.h>
+
+/*
+ * Timer0: peiod time = 256 * 1 = 256 us
+ * 		   duty cycle = 64 / 256 = 25%
+ *
+ * Timer1:
+ */
+
+void Main_voidReadPWM(void);
+void Main_voidICU_HW(void);
+void Main_voidADC_ChainNotificationFunction(void);
+
+uint16 Main_u16Time1 = 0;
+uint16 Main_u16Time2 = 0;
+uint16 Main_u16Time3 = 0;
+uint16 Main_u16Period = 0;
+uint16 Main_u16On = 0;
+
+uint8 Main_u8ADCChainResultArr[2] = {0};
+
+/*It is the main*/
+void main(void)
+{
+	/*Peripherals Initialization*/
+	PORT_voidInit();
+	ADC_voidInit();
+	GIE_voidEnable();
+	CLCD_voidInit();
+
+	uint8 Local_u8ChainArr[2] = {ADC_u8SINGLE_ENDED_CH0, ADC_u8SINGLE_ENDED_CH1};
+	uint16 Local_u16Result;
+
+	ADC_ChainConv_t Local_adcChain = {
+			.ChainSize = 2,
+			.ChainArr = Local_u8ChainArr,
+			.ResultArr = (uint16 *) Main_u8ADCChainResultArr,
+			.NotificationFunc = Main_voidADC_ChainNotificationFunction};
+
+	ADC_u8StartChainConversionAsynch(&Local_adcChain);
+//	ADC_u8StartConversionAsynch(ADC_u8SINGLE_ENDED_CH7, &Local_u16Result, Main_voidADC_ChainNotificationFunction);
+
+//	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_HIGH);
+//	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_HIGH);
+
+//	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_HIGH);
+//	_delay_ms(1000);
+//	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_LOW);
+//	*((volatile uint8 *) 0x41) |= (1<<3);
+//
+//	*((volatile uint8 *) 0x41) &= ~(1<<0);
+//	*((volatile uint8 *) 0x41) |= (1<<1);
+//	*((volatile uint8 *) 0x41) |= (1<<2);
+
+	/*Super Loop*/
+	while(1)
+	{
+
+	}
+}
+
+void Main_voidADC_ChainNotificationFunction(void)
+{
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN0, DIO_u8PIN_HIGH);
+	DIO_u8SetPinValue(DIO_u8PORTC, DIO_u8PIN1, DIO_u8PIN_HIGH);
+}
+
+//#include "STD_TYPES.h"
+//#include "LIBRARY_interface.h"
+//
+//#include "DIO_interface.h"
+//#include "PORT_interface.h"
+//#include "TIMERS_interface.h"
+//#include "GIE_interface.h"
+//#include "ADC_interface.h"
+//#include "EXTI_interface.h"
+//
+//#include "CLCD_interface.h"
+//
+//#include <util/delay.h>
+//
+///*
+// * Timer0: peiod time = 256 * 1 = 256 us
+// * 		   duty cycle = 64 / 256 = 25%
+// *
+// * Timer1:
+// */
+//
+//void Main_voidReadPWM(void);
+//void Main_voidICU_HW(void);
+//
+//uint16 Main_u16Time1 = 0;
+//uint16 Main_u16Time2 = 0;
+//uint16 Main_u16Time3 = 0;
+//uint16 Main_u16Period = 0;
+//uint16 Main_u16On = 0;
+//
+///*It is the main*/
+//void main(void)
+//{
+//	/*Peripherals Initialization*/
+//	PORT_voidInit();
+//	CLCD_voidInit();
+//
+//	/*Timer 0*/
+//	TIMER0_voidInit();
+//	TIMER0_voidSetCompValue(63);
+//
+//	/*EXTI*/
+////	EXTI_voidInit();
+////	EXTI_u8SetCallBack(EXTI_u8INT0, Main_voidReadPWM);
+//
+//	/*Timer 1*/
+//	TIMER1_voidInit();
+//
+//	/*ICU*/
+//	ICU_voidInit();
+//	TIMERS_u8SetCallBack(TIMER1_ICU, Main_voidICU_HW);
+//
+//	GIE_voidEnable();
+//
+//		while((Main_u16Time2 == 0u) || (Main_u16Time3 == 0u) || (Main_u16Time1 == 0u));
+//
+//		Main_u16Period = Main_u16Time2 - Main_u16Time1;
+//		Main_u16On = Main_u16Time3 - Main_u16Time2;
+//		CLCD_voidClearDisplay();
+//		CLCD_u8GoToXY(0, 0);
+//		CLCD_voidSendDecimalNumber(Main_u16Period);
+//		CLCD_u8GoToXY(0, 1);
+//		CLCD_voidSendDecimalNumber(Main_u16On);
+//	/*Super Loop*/
+//	while(1)
+//	{
+//
+//	}
+//}
+//
+//void Main_voidICU_HW(void)
+//{
+//	static uint8 Local_u8counter = 0u;
+//	Local_u8counter++;
+//
+//	if(Local_u8counter == 2u)
+//	{
+//		Main_u16Time1 = ICU_u16GetInputCaptureValue();
+//
+//	}
+//	else if(Local_u8counter == 3u)
+//	{
+//		Main_u16Time2 = ICU_u16GetInputCaptureValue();
+//		ICU_u8SetTriggerSrc(ICU_u8FALLING_EDGE);
+//	}
+//	else if(Local_u8counter == 4u)
+//	{
+//		Main_u16Time3 = ICU_u16GetInputCaptureValue();
+//		ICU_voidIntDisable();
+//	}
+//}
+//
+//void Main_voidReadPWM(void)
+//{
+//	static uint8 Local_u8Counter = 0u;
+//
+//
+//	if(Local_u8Counter == 2u)
+//	{
+//		TIMER1_voidSetTimerValue(0u);
+//	}
+//	else if(Local_u8Counter == 3u)
+//	{
+//		Main_u16Time2 = TIMER1_u16GetValue();
+//		EXTI_u8SetSenseCtrl(EXTI_u8INT0, EXTI_u8FALLING_EDGE);
+//	}
+//	else if(Local_u8Counter == 4u)
+//	{
+//		Main_u16Time3 = TIMER1_u16GetValue();
+//		EXTI_u8IntDisable(EXTI_u8INT0);
+//	}
+//	Local_u8Counter++;
+//}
+//
+//#include "STD_TYPES.h"
+//#include "LIBRARY_interface.h"
+//
+//#include "DIO_interface.h"
+//#include "PORT_interface.h"
+//#include "TIMERS_interface.h"
+//#include "GIE_interface.h"
+//#include "ADC_interface.h"
+//#include "EXTI_interface.h"
+//
+//#include "CLCD_interface.h"
+//
+//#include <util/delay.h>
+//
+///*
+// * Timer0: peiod time = 256 * 1 = 256 us
+// * 		   duty cycle = 64 / 256 = 25%
+// *
+// * Timer1:
+// */
+//
+//void Main_voidReadPWM(void);
+//void Main_voidICU_HW(void);
+//
+//uint16 Main_u16Time1 = 0;
+//uint16 Main_u16Time2 = 0;
+//uint16 Main_u16Time3 = 0;
+//uint16 Main_u16Period = 0;
+//uint16 Main_u16On = 0;
+//
+///*It is the main*/
+//void main(void)
+//{
+//	/*Peripherals Initialization*/
+//	PORT_voidInit();
+//	CLCD_voidInit();
+//
+//	/*Timer 0*/
+//	TIMER0_voidInit();
+//	TIMER0_voidSetCompValue(63);
+//
+//	/*EXTI*/
+//	EXTI_voidInit();
+//	EXTI_u8SetCallBack(EXTI_u8INT0, Main_voidReadPWM);
+//
+//	/*Timer 1*/
+//	TIMER1_voidInit();
+//
+//
+//	GIE_voidEnable();
+//
+//		while((Main_u16Time2 == 0u) || (Main_u16Time3 == 0u));
+//
+//		Main_u16Period = Main_u16Time2;
+//		Main_u16On = Main_u16Time3 - Main_u16Time2;
+//		CLCD_voidClearDisplay();
+//		CLCD_u8GoToXY(0, 0);
+//		CLCD_voidSendDecimalNumber(Main_u16Period);
+//		CLCD_u8GoToXY(0, 1);
+//		CLCD_voidSendDecimalNumber(Main_u16On);
+//	/*Super Loop*/
+//	while(1)
+//	{
+//
+//	}
+//}
+//
+//void Main_voidICU_HW(void)
+//{
+//	static uint8 Local_u8counter = 0u;
+//	Local_u8counter++;
+//
+//	if(Local_u8counter == 1u)
+//	{
+//		Main_u16Time1 = ICU_u16GetInputCaptureValue();
+//
+//	}
+//	else if(Local_u8counter == 2u)
+//	{
+//		Main_u16Time2 = ICU_u16GetInputCaptureValue();
+//		ICU_u8SetTriggerSrc(ICU_u8FALLING_EDGE);
+//	}
+//	else if(Local_u8counter == 3u)
+//	{
+//		Main_u16Time3 = ICU_u16GetInputCaptureValue();
+//		ICU_voidIntDisable();
+//	}
+//}
+//
+//void Main_voidReadPWM(void)
+//{
+//	static uint8 Local_u8Counter = 0u;
+//
+//
+//	if(Local_u8Counter == 2u)
+//	{
+//		TIMER1_voidSetTimerValue(0u);
+//	}
+//	else if(Local_u8Counter == 3u)
+//	{
+//		Main_u16Time2 = TIMER1_u16GetValue();
+//		EXTI_u8SetSenseCtrl(EXTI_u8INT0, EXTI_u8FALLING_EDGE);
+//	}
+//	else if(Local_u8Counter == 4u)
+//	{
+//		Main_u16Time3 = TIMER1_u16GetValue();
+//		EXTI_u8IntDisable(EXTI_u8INT0);
+//	}
+//	Local_u8Counter++;
+//}

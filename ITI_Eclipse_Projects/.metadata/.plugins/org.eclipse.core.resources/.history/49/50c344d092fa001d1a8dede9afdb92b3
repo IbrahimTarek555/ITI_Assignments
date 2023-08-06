@@ -1,0 +1,394 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: TIMER Tarek			**********************/
+/**********************			File: TIMERS_program.c		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file TIMERS_program.c
+ * @author Ibrahim Tarek
+ * @brief This file implements the TIMERS module functions.
+ * @version 1.00
+ */
+
+#include "STD_TYPES.h"
+#include "BIT_MATH.h"
+#include "DEFINES.h"
+
+#include "TIMERS_interface.h"
+#include "TIMERS_config.h"
+#include "TIMERS_private.h"
+#include "TIMERS_register.h"
+
+static void (* TIMERS_pvCallBackFuncArr[8])(void);
+
+
+
+uint8 TIMER0_u8Init(const TIMER0_2_CFG_t *Copy_pstTimerConfig)
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	/*Validate the pointer to structure*/
+	if(Copy_pstTimerConfig != NULL)
+	{
+		/*Select Wave Generation Mode*/
+		switch(Copy_pstTimerConfig -> WGM)
+		{
+		case NORMAL:	CLR_BIT(TCCR0,TCCR0_WGM00);	CLR_BIT(TCCR0,TCCR0_WGM01);	break;
+		case PHASE_CORR:SET_BIT(TCCR0,TCCR0_WGM00);	CLR_BIT(TCCR0,TCCR0_WGM01);	break;
+		case CTC:		CLR_BIT(TCCR0,TCCR0_WGM00);	SET_BIT(TCCR0,TCCR0_WGM01);	break;
+		case FAST_PWM:	SET_BIT(TCCR0,TCCR0_WGM00);	SET_BIT(TCCR0,TCCR0_WGM01);	break;
+		}
+
+		/*Select Output Compare Match Mode*/
+		TCCR0 &= OCMATCH_MASK;
+		if((Copy_pstTimerConfig -> WGM == NORMAL) || (Copy_pstTimerConfig -> WGM == CTC))
+		{
+			if((Copy_pstTimerConfig -> OCMode) < NON_INVERTED_PWM)
+			{
+				TCCR0 |= ((Copy_pstTimerConfig -> OCMode) << 4);
+			}
+			else
+			{
+				Local_u8ErrorState = NOK;
+			}
+		}
+		else if((Copy_pstTimerConfig -> WGM == FAST_PWM) || (Copy_pstTimerConfig -> WGM == PHASE_CORR))
+		{
+			switch(Copy_pstTimerConfig -> OCMode)
+			{
+			case OC0_DISCONNECTED:	TCCR0 |= (0 << 4);	break;
+			case NON_INVERTED_PWM:	TCCR0 |= (2 << 4);	break;
+			case INVERTED_PWM:		TCCR0 |= (3 << 4);	break;
+			default: Local_u8ErrorState = NOK;
+			}
+		}
+
+		/*Select the clock*/
+		TCCR0 &= PRESCALER_MASK;
+		TCCR0 |= Copy_pstTimerConfig -> ClkSelect;
+
+//		/*enable the interrupt*/
+//		SET_BIT(TIMSK,TIMSK_OCIE0);
+	}
+	else
+	{
+		Local_u8ErrorState = NULL_PTR_ERR;
+	}
+
+	/*Return Error State*/
+	return Local_u8ErrorState;
+}
+//uint8 TIMER1_voidInit(const TIMER_t *Copy_pstTimerConfig);
+uint8 TIMER2_u8Init(const TIMER0_2_CFG_t *Copy_pstTimerConfig)
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	/*Validate the pointer to structure*/
+	if(Copy_pstTimerConfig != NULL)
+	{
+		/*Select Wave Generation Mode*/
+		switch(Copy_pstTimerConfig -> WGM)
+		{
+		case NORMAL:	CLR_BIT(TCCR2,TCCR2_WGM20);	CLR_BIT(TCCR2,TCCR2_WGM21);	break;
+		case PHASE_CORR:SET_BIT(TCCR2,TCCR2_WGM20);	CLR_BIT(TCCR2,TCCR2_WGM21);	break;
+		case CTC:		CLR_BIT(TCCR2,TCCR2_WGM20);	SET_BIT(TCCR2,TCCR2_WGM21);	break;
+		case FAST_PWM:	SET_BIT(TCCR2,TCCR2_WGM20);	SET_BIT(TCCR2,TCCR2_WGM21);	break;
+		}
+
+		/*Select Output Compare Match Mode*/
+		TCCR2 &= OCMATCH_MASK;
+		if((Copy_pstTimerConfig -> WGM == NORMAL) || (Copy_pstTimerConfig -> WGM == CTC))
+		{
+			if((Copy_pstTimerConfig -> OCMode) < NON_INVERTED_PWM)
+			{
+				TCCR2 |= ((Copy_pstTimerConfig -> OCMode) << 4);
+			}
+			else
+			{
+				Local_u8ErrorState = NOK;
+			}
+		}
+		else if((Copy_pstTimerConfig -> WGM == FAST_PWM) || (Copy_pstTimerConfig -> WGM == PHASE_CORR))
+		{
+			switch(Copy_pstTimerConfig -> OCMode)
+			{
+			case OC0_DISCONNECTED:	TCCR2 |= (0 << 4);	break;
+			case NON_INVERTED_PWM:	TCCR2 |= (2 << 4);	break;
+			case INVERTED_PWM:		TCCR2 |= (3 << 4);	break;
+			default: Local_u8ErrorState = NOK;
+			}
+		}
+
+		/*Select the clock*/
+		TCCR2 &= PRESCALER_MASK;
+		TCCR2 |= Copy_pstTimerConfig -> ClkSelect;
+
+//		/*enable the interrupt*/
+//		SET_BIT(TIMSK,TIMSK_OCIE2);
+
+	}
+	else
+	{
+		Local_u8ErrorState = NULL_PTR_ERR;
+	}
+
+	/*Return Error State*/
+	return Local_u8ErrorState;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//void TIMER0_voidInit(void)
+//{
+//	/*Select Wave Generation Mode*/
+//	SET_BIT(TCCR0,TCCR0_WGM00);
+//	SET_BIT(TCCR0,TCCR0_WGM01);
+//
+//	/*Select Compare Match Output Mode*/
+//	CLR_BIT(TCCR0,TCCR0_COM00);
+//	SET_BIT(TCCR0,TCCR0_COM01);
+//
+//	/*Select Prescaler*/
+//	TCCR0 &= PRESCALER_MASK;
+//	TCCR0 |= DIVISION_BY_8;
+//}
+
+void TIMER1_voidInit(void)
+{
+	/*Select Wave Generation Mode*/
+	CLR_BIT(TCCR1A,TCCR1A_WGM10);
+	CLR_BIT(TCCR1A,TCCR1A_WGM11);
+	CLR_BIT(TCCR1B,TCCR1B_WGM12);
+	CLR_BIT(TCCR1B,TCCR1B_WGM13);
+
+//	/*Select Compare Match Output Mode*/
+//	CLR_BIT(TCCR1A,TCCR1A_COM1A0);
+//	CLR_BIT(TCCR1A,TCCR1A_COM1A1);
+
+	/*Select Prescaler*/
+	CLR_BIT(TCCR1B,TCCR1B_CS10);
+	SET_BIT(TCCR1B,TCCR1B_CS11);
+	CLR_BIT(TCCR1B,TCCR1B_CS12);
+
+//	/*Set the top value*/
+//	ICR1 = 20000;
+}
+
+void TIMERS_voidIntEnable(TIMERS_Int_Src_t Copy_u8TimerInt)
+{
+	/*Define Error State*/
+	uint8 Local_u8ErrorState = OK;
+
+	/*Switch the interrupt*/
+	switch(Copy_u8TimerInt)
+	{
+	case TIMER0_OVF:	SET_BIT(TIMSK,TIMSK_TOIE0);	break;
+	case TIMER0_COMP:	SET_BIT(TIMSK,TIMSK_OCIE0);	break;
+	case TIMER2_COMP:	SET_BIT(TIMSK,TIMSK_OCIE2); break;
+	case TIMER2_OVF:	SET_BIT(TIMSK,TIMSK_TOIE2);	break;
+	default:Local_u8ErrorState = NOK;
+	}
+
+	/*Return Error State*/
+	return Local_u8ErrorState;
+}
+void TIMERS_voidIntDisable(TIMERS_Int_Src_t Copy_u8TimerInt);
+
+
+void TIMER0_voidSetCompValue(uint8 Copy_u8Value)
+{
+	/*Set the Compare Match Value*/
+	OCR0 = Copy_u8Value;
+}
+
+void TIMER2_voidSetCompValue(uint8 Copy_u8Value)
+{
+	/*Set the Compare Match Value*/
+	OCR2 = Copy_u8Value;
+}
+
+void TIMER1_voidSetCompValue(uint16 Copy_u16Value)
+{
+	/*Set the Compare Match Value*/
+	OCR1A = Copy_u16Value;
+
+}
+
+void TIMER1_voidSetTimerValue(uint16 Copy_u16TimerValue)
+{
+	/*Set the timer overflow value*/
+	TCNT1 = Copy_u16TimerValue;
+}
+
+uint16 TIMER1_u16GetValue(void)
+{
+	/*Return the timer value*/
+	return TCNT1;
+}
+
+
+uint8 TIMERS_u8SetCallBack(TIMERS_Int_Src_t Copy_u8TimerIntSource, void (* Copy_pvCallBackFunc)(void))
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	/*Validate the pointer of function*/
+	if(Copy_pvCallBackFunc != NULL)
+	{
+		TIMERS_pvCallBackFuncArr[Copy_u8TimerIntSource] = Copy_pvCallBackFunc;
+	}
+	else
+	{
+		Local_u8ErrorState = NULL_PTR_ERR;
+	}
+
+	/*Return Error State*/
+	return Local_u8ErrorState;
+
+}
+
+void ICU_voidInit(void)
+{
+	/*Enable Input Capture Interrupt*/
+	SET_BIT(TIMSK,TIMSK_TICIE1);
+
+	/*Choose Trigger Source*/
+#if	ICU_TRIGGER_SRC == RISING_EDGE
+	SET_BIT(TCCR1B,TCCR1B_ICES1);
+#elif ICU_TRIGGER_SRC == FALLING_EDGE
+	CLR_BIT(TCCR1B,TCCR1B_ICES1);
+#else
+#error	wrong configuration for ICU Trigger Source.
+#endif
+}
+
+uint8 ICU_u8SetTriggerSrc(uint8 Copy_u8TriggerSrc)
+{
+	uint8 Local_u8ErrorState = OK;
+
+	switch(Copy_u8TriggerSrc)
+	{
+	case ICU_u8RISING_EDGE:	SET_BIT(TCCR1B,TCCR1B_ICES1);	break;
+	case ICU_u8FALLING_EDGE: CLR_BIT(TCCR1B,TCCR1B_ICES1);	break;
+	default: Local_u8ErrorState = NOK;
+	}
+
+	return Local_u8ErrorState;
+}
+
+void ICU_voidIntEnable(void)
+{
+	/*Enable Input Capture Interrupt*/
+	SET_BIT(TIMSK,TIMSK_TICIE1);
+}
+void ICU_voidIntDisable(void)
+{
+	/*Disable Input Capture Interrupt*/
+	CLR_BIT(TIMSK,TIMSK_TICIE1);
+}
+
+uint16 ICU_u16GetInputCaptureValue(void)
+{
+	/*Return Input Capture Register Value*/
+	return ICR1;
+}
+
+
+/*Timer/Counter 0 OverFlow Event ISR*/
+void __vector_11 (void) __attribute((signal));
+void __vector_11 (void)
+{
+	/*Validate the pointer*/
+	if(TIMERS_pvCallBackFuncArr[TIMER0_OVF] != NULL)
+	{
+		/*Calling the ISR function*/
+		TIMERS_pvCallBackFuncArr[TIMER0_OVF]();
+	}
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+
+/*Timer/Counter 0 Compare Match Event ISR*/
+void __vector_10 (void) __attribute((signal));
+void __vector_10 (void)
+{
+	/*Validate the pointer*/
+	if(TIMERS_pvCallBackFuncArr[TIMER0_COMP] != NULL)
+	{
+		/*Calling the ISR function*/
+		TIMERS_pvCallBackFuncArr[TIMER0_COMP]();
+	}
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+/*Timer/Counter 1 Input Capture Event ISR*/
+void __vector_6 (void) __attribute((signal));
+void __vector_6 (void)
+{
+	/*Validate the pointer*/
+	if(TIMERS_pvCallBackFuncArr[TIMER1_CAPT] != NULL)
+	{
+		/*Calling the ISR function*/
+		TIMERS_pvCallBackFuncArr[TIMER1_CAPT]();
+	}
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+
+/*Timer/Counter 2 OverFlow Event ISR*/
+void __vector_5 (void) __attribute((signal));
+void __vector_5 (void)
+{
+	/*Validate the pointer*/
+	if(TIMERS_pvCallBackFuncArr[TIMER2_OVF] != NULL)
+	{
+		/*Calling the ISR function*/
+		TIMERS_pvCallBackFuncArr[TIMER2_OVF]();
+	}
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+
+/*Timer/Counter 2 Compare Match Event ISR*/
+void __vector_4 (void) __attribute((signal));
+void __vector_4 (void)
+{
+	/*Validate the pointer*/
+	if(TIMERS_pvCallBackFuncArr[TIMER2_COMP] != NULL)
+	{
+		/*Calling the ISR function*/
+		TIMERS_pvCallBackFuncArr[TIMER2_COMP]();
+	}
+	else
+	{
+		/*Do nothing*/
+	}
+}

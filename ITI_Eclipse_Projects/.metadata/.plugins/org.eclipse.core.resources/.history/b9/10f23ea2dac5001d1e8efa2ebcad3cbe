@@ -1,0 +1,35 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: Ibrahim Tarek		**********************/
+/**********************			File: STEPPER_program.c		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+
+#include "STD_TYPES.h"
+
+#include "DIO_interface.h"
+
+#include "STEPPER_config.h"
+#include "STEPPER_private.h"
+#include "STEPPER_interface.h"
+
+uint8 STEPPER_u8Rotate(const STEPPER_t *Copy_psteppertMotorInfo, uint8 Copy_u8Angle, uint8 Copy_u8Direction)
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	/*Validate the pointer address*/
+	if(Copy_psteppertMotorInfo != NULL)
+	{
+
+	}
+	else
+	{
+		Local_u8ErrorState = NULL_PTR_ERR;
+	}
+
+	/*Return the error state*/
+	return Local_u8ErrorState;
+}

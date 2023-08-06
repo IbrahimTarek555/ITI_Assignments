@@ -1,0 +1,146 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+#include "SSD_interface.h"
+#include "LED_interface.h"
+#include "SWITCH_interface.h"
+
+#include <util/delay.h>
+
+
+
+void main(void)
+{
+	/*Define Variables*/
+	sint8 Local_s8FirstCounter = 0;
+	sint8 Local_s8OPerationCounter = 0;
+	sint8 Local_s8SecondCounter = 0;
+	sint8 Local_s8Result;
+	uint8 Local_u8ArrowCounter = 5;
+	uint8 Local_u8Min;
+	uint8 Local_u8SecondFlag;
+	uint16 Local_u16AssResult;
+
+	SSD_t Local_CathodeSSD;
+	Local_CathodeSSD.Type = SSD_u8CATHODE;
+	Local_CathodeSSD.EnablePin = DIO_u8PIN0;
+	Local_CathodeSSD.Port = DIO_u8PORTC;
+	Local_CathodeSSD.EnablePort = DIO_u8PORTB;
+	Local_CathodeSSD.LedPin = 0;
+
+	SSD_t Local_AnodeSSD;
+	Local_AnodeSSD.Type = SSD_u8ANODE;
+	Local_AnodeSSD.EnablePin = DIO_u8PIN1;
+	Local_AnodeSSD.Port = DIO_u8PORTC;
+	Local_AnodeSSD.EnablePort = DIO_u8PORTB;
+	Local_AnodeSSD.LedPin = 0;
+
+	/*
+	 * PORT Description:
+	 * 1- DIO_PORTD_PIN0 -> DIO_PORTD_PIN2: INPUT, INTERNAL_PULL_UP
+	 * 2- DIO_PORTA_PIN0 -> DIO_PORTA_PIN2: OUTPUT
+	 * 3- DIO_PORTB_PIN4 -> DIO_PORTB_PIN7: OUTPUT
+	 */
+	PORT_voidInit();
+
+	/*Initialize enter button*/
+	uint8 Local_u8EnterButton = 1;
+
+	/*Initialize up and down arrows*/
+	uint8 Local_u8UpButton = 1;
+	uint8 Local_u8DownButton = 1;
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	LED_t Local_ActiveHighLed;
+	Local_ActiveHighLed.Pin = DIO_u8PIN0;
+	Local_ActiveHighLed.Port = DIO_u8PORTD;
+	Local_ActiveHighLed.Type = LED_u8ACTIVE_HIGH;
+
+	LED_t Local_ActiveLowLed;
+	Local_ActiveLowLed.Pin = DIO_u8PIN1;
+	Local_ActiveLowLed.Port = DIO_u8PORTD;
+	Local_ActiveLowLed.Type = LED_u8ACTIVE_LOW;
+
+	SWITCH_t Local_PullUpSwitch;
+	Local_PullUpSwitch.Pin = DIO_u8PIN4;
+	Local_PullUpSwitch.Port = DIO_u8PORTD;
+	Local_PullUpSwitch.Type = SWITCH_u8PULL_UP;
+
+	SWITCH_t Local_PullDownSwitch;
+	Local_PullDownSwitch.Pin = DIO_u8PIN3;
+	Local_PullDownSwitch.Port = DIO_u8PORTD;
+	Local_PullDownSwitch.Type = SWITCH_u8PULL_DOWN;
+	uint8 Local_u8SwitchState;
+
+	while(1)
+	{
+//		for(Local_u8ArrowCounter = 0; Local_u8ArrowCounter < 10; Local_u8ArrowCounter++)
+//		{
+//			SSD_u8SetNumber(&Local_AnodeSSD, Local_u8ArrowCounter);
+//			_delay_ms(10);
+//			SSD_u8Disable(&Local_AnodeSSD);
+//			SSD_u8SetNumber(&Local_CathodeSSD, Local_u8ArrowCounter);
+//			_delay_ms(10);
+//			SSD_u8Disable(&Local_CathodeSSD);
+//		}
+//		LED_u8On(&Local_ActiveLowLed);
+//		_delay_ms(500);
+//		LED_u8Toggle(&Local_ActiveLowLed);
+//		_delay_ms(2000);
+//		LED_u8Toggle(&Local_ActiveLowLed);
+//		_delay_ms(2000);
+//		LED_u8Off(&Local_ActiveLowLed);
+//		_delay_ms(500);
+		SWITCH_u8GetState(&Local_PullUpSwitch, &Local_u8SwitchState);
+
+		if(Local_u8SwitchState == SWITCH_u8RELEASED)
+		{
+			LED_u8On(&Local_ActiveHighLed);
+		}
+		else
+		{
+			LED_u8Off(&Local_ActiveHighLed);
+		}
+
+		SWITCH_u8GetState(&Local_PullDownSwitch, &Local_u8SwitchState);
+
+		if(Local_u8SwitchState == SWITCH_u8RELEASED)
+		{
+			LED_u8On(&Local_ActiveLowLed);
+		}
+		else
+		{
+			LED_u8Off(&Local_ActiveLowLed);
+		}
+//		LED_u8On(&Local_ActiveHighLed);
+//		LED_u8On(&Local_ActiveLowLed);
+//		_delay_ms(1000);
+//		LED_u8On(&Local_ActiveHighLed);
+//		LED_u8On(&Local_ActiveLowLed);
+//		_delay_ms(2000);
+//
+//		LED_u8Off(&Local_ActiveHighLed);
+//		LED_u8Off(&Local_ActiveLowLed);
+//		_delay_ms(2000);
+//
+//		for(Local_u8Min = 0; Local_u8Min < 10; Local_u8Min++)
+//		{
+//			LED_u8Toggle(&Local_ActiveHighLed);
+//			LED_u8Toggle(&Local_ActiveLowLed);
+//			_delay_ms(500);
+//		}
+
+//			DIO_u8SetPinValue(DIO_u8PORTB, Local_AnodeSSD.EnablePin, DIO_u8PIN_LOW);
+//
+//			SSD_u8SetNumber(&Local_CathodeSSD, 5);
+//			_delay_ms(2000);
+//
+//			DIO_u8SetPinValue(DIO_u8PORTB, Local_CathodeSSD.EnablePin, DIO_u8PIN_HIGH);
+	}
+}

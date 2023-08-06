@@ -1,0 +1,20 @@
+22:50:39 **** Incremental Build of configuration Debug for project ADC_Lec2AnalogSensorsWithLoginProject ****
+make all 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 ADC_Lec2AnalogSensorsWithLoginProject.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:   14014 bytes (42.8% Full)
+(.text + .data + .bootloader)
+
+Data:        362 bytes (17.7% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+22:50:39 Build Finished (took 256ms)
+

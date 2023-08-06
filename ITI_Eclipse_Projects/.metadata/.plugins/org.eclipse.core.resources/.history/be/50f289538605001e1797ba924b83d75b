@@ -1,0 +1,38 @@
+#include "STD_TYPES.h"
+#include "LIBRARY_interface.h"
+#include "DEFINES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "GIE_interface.h"
+#include "UART_interface.h"
+
+#include "CLCD_interface.h"
+
+#include <util/delay.h>
+void Main_voidFunc(void);
+
+/*It is the main*/
+void main(void)
+{
+	PORT_voidInit();
+	GIE_voidEnable();
+
+	USART_voidInit();
+
+	uint8 Ahmed[10];
+	uint8 Local_u8ErrorFounder = OK;
+
+	while(1)
+	{
+		Local_u8ErrorFounder = USART_u8ReceiveBufferAsynch(Ahmed, 5, Main_voidFunc);
+		if(Local_u8ErrorFounder == OK)
+		{
+		}
+	}
+}
+void Main_voidFunc(void)
+{
+	USART_u8SendBufferAsynch(Ahmed, 5, Main_voidFunc);
+}

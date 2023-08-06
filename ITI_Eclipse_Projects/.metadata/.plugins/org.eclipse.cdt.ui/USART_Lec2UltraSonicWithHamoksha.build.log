@@ -1,0 +1,20 @@
+04:38:43 **** Incremental Build of configuration Debug for project USART_Lec2UltraSonicWithHamoksha ****
+make all 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 USART_Lec2UltraSonicWithHamoksha.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:   15272 bytes (46.6% Full)
+(.text + .data + .bootloader)
+
+Data:        512 bytes (25.0% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+04:38:43 Build Finished (took 359ms)
+

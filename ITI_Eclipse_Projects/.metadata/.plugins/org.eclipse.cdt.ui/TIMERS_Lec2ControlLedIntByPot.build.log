@@ -1,0 +1,39 @@
+21:11:58 **** Incremental Build of configuration Debug for project TIMERS_Lec2ControlLedIntByPot ****
+make all 
+Building file: ../main.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega32 -DF_CPU=8000000UL -MMD -MP -MF"main.d" -MT"main.o" -c -o "main.o" "../main.c"
+../main.c:10: warning: return type of 'main' is not 'int'
+Finished building: ../main.c
+ 
+Building target: TIMERS_Lec2ControlLedIntByPot.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,TIMERS_Lec2ControlLedIntByPot.map -mmcu=atmega32 -o "TIMERS_Lec2ControlLedIntByPot.elf"  ./ADC_program.o ./DIO_program.o ./LIBRARY_program.o ./PORT_program.o ./TIMERS_program.o ./main.o   
+Finished building target: TIMERS_Lec2ControlLedIntByPot.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S TIMERS_Lec2ControlLedIntByPot.elf  >"TIMERS_Lec2ControlLedIntByPot.lss"
+Finished building: TIMERS_Lec2ControlLedIntByPot.lss
+ 
+Create Flash image (ihex format)
+avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex TIMERS_Lec2ControlLedIntByPot.elf  "TIMERS_Lec2ControlLedIntByPot.hex"
+Finished building: TIMERS_Lec2ControlLedIntByPot.hex
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 TIMERS_Lec2ControlLedIntByPot.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:    4008 bytes (12.2% Full)
+(.text + .data + .bootloader)
+
+Data:         22 bytes (1.1% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+21:11:59 Build Finished (took 738ms)
+

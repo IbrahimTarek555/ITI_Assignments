@@ -1,0 +1,35 @@
+#include "STD_TYPES.h"
+#include "DEFINES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+#include "GIE_interface.h"
+#include "UART_interface.h"
+
+
+#include <util/delay.h>
+void Main_voidFunc(void);
+
+/*It is the main*/
+void main(void)
+{
+	PORT_voidInit();
+	GIE_voidEnable();
+	USART_voidInit();
+
+	uint8 Local_u8Reading;
+	uint16 Local_u16SendArr[20] = {0};
+	uint16 Local_u16BufferArr[20] = {0};
+
+		USART_u8SendBufferSynch("Turn on the light\nhh", 20);
+	while(1)
+	{
+//		USART_u8ReceiveBufferAsynch(Local_u16BufferArr, 10, Main_voidFunc);
+
+	}
+}
+void Main_voidFunc(void)
+{
+	DIO_u8SetPinValue(DIO_u8PORTA, DIO_u8PIN6, DIO_u8PIN_HIGH);
+}
