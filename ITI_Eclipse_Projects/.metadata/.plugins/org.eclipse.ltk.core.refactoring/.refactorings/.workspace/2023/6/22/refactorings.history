@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete 4 resources" deleteContents="false" description="Delete 4 resources" element1="/USART_Lec2UltraSonicWithBuzzer/CLCD_config.h" element2="/USART_Lec2UltraSonicWithBuzzer/CLCD_interface.h" element3="/USART_Lec2UltraSonicWithBuzzer/CLCD_private.h" element4="/USART_Lec2UltraSonicWithBuzzer/CLCD_program.c" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="4" stamp="1685586512839"/>
+</session>

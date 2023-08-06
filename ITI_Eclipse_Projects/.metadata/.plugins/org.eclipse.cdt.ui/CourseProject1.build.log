@@ -1,0 +1,43 @@
+01:58:19 **** Build of configuration Debug for project CourseProject1 ****
+make all 
+Building file: ../DIO.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega32 -DF_CPU=16000000UL -MMD -MP -MF"DIO.d" -MT"DIO.o" -c -o "DIO.o" "../DIO.c"
+Finished building: ../DIO.c
+ 
+Building file: ../LCD.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega32 -DF_CPU=16000000UL -MMD -MP -MF"LCD.d" -MT"LCD.o" -c -o "LCD.o" "../LCD.c"
+../LCD.c:8:1: warning: "F_CPU" redefined
+<command-line>: warning: this is the location of the previous definition
+In file included from ../LCD.c:9:
+d:/embedded systems avr tools/01- imt sdk/imt_sdk_win_64/winavr/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+Finished building: ../LCD.c
+ 
+Building file: ../farah.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega32 -DF_CPU=16000000UL -MMD -MP -MF"farah.d" -MT"farah.o" -c -o "farah.o" "../farah.c"
+In file included from ../farah.c:4:
+d:/embedded systems avr tools/01- imt sdk/imt_sdk_win_64/winavr/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+../farah.c: In function 'USART_voidInit':
+../farah.c:122: warning: implicit declaration of function 'SET_BIT'
+../farah.c:131: warning: implicit declaration of function 'CLR_BIT'
+../farah.c: At top level:
+../LCD.h:28: warning: 'send_falling_edge' declared 'static' but never defined
+Finished building: ../farah.c
+ 
+Building target: CourseProject1.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,CourseProject1.map -mmcu=atmega32 -o "CourseProject1.elf"  ./DIO.o ./LCD.o ./farah.o   
+./farah.o: In function `main':
+../farah.c:17: undefined reference to `SET_BIT'
+../farah.c:21: undefined reference to `SET_BIT'
+../farah.c:31: undefined reference to `SET_BIT'
+../farah.c:33: undefined reference to `SET_BIT'
+../farah.c:33: undefined reference to `CLR_BIT'
+./farah.o: In function `main':
+d:/embedded systems avr tools/01- imt sdk/imt_sdk_win_64/winavr/lib/gcc/../../avr/include/util/delay.h:151: undefined reference to `SET_BIT'
+make: *** [CourseProject1.elf] Error 1
+
+01:58:23 Build Finished (took 4s.207ms)
+

@@ -1,0 +1,23 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: Ibrahim Tarek		**********************/
+/**********************			File: PWM_interface.h		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file PWM_interface.h
+ * @author Ibrahim Tarek
+ * @brief This file interfaces the PWM service functions.
+ * @version 1.00
+ */
+
+#ifndef PWM_INTERFACE_H_
+#define PWM_INTERFACE_H_
+
+
+void PWM_voidSetFreq(uint8 PWM_u8Timer1Ch, uint8 PWM_u8Freq);
+void PWM_voidSetDuty(uint8 PWM_u8Timer1Ch, uint8 PWM_u8Duty);
+
+#endif

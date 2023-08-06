@@ -1,0 +1,45 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+
+#include "CLCD_interface.h"
+
+#include <util/delay.h>
+
+
+
+void main(void)
+{
+	/*Define Variables*/
+	sint8 Local_u8CounterXDirection = 15;
+	uint8 Local_u8CounterYDirection = 0;
+
+	/*Set Pins Direction*/
+	PORT_voidInit();
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	while(1)
+	{
+		CLCD_voidClearDisplay();
+
+		CLCD_voidSendSpecialCharacter(Local_u8Alif, 0, Local_u8CounterXDirection, Local_u8CounterYDirection);
+		CLCD_voidSendSpecialCharacter(Local_u8Mim, 1, Local_u8CounterXDirection + 1, Local_u8CounterYDirection);
+		CLCD_voidSendSpecialCharacter(Local_u8Yaa, 2, Local_u8CounterXDirection + 2, Local_u8CounterYDirection);
+		CLCD_voidSendSpecialCharacter(Local_u8Haa, 3, Local_u8CounterXDirection + 3, Local_u8CounterYDirection);
+		Local_u8CounterXDirection--;
+
+		if(Local_u8CounterXDirection == -4)
+		{
+			Local_u8CounterXDirection = 15;
+			_delay_ms(500);
+		}
+
+		Local_u8CounterYDirection = Local_u8CounterYDirection ^ 1;
+
+		_delay_ms(300);
+
+	}
+}

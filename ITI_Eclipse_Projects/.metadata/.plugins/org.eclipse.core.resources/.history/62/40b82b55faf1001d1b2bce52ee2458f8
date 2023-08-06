@@ -1,0 +1,25 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: Ibrahim Tarek		**********************/
+/**********************			File: TIMERS_interface.h		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file TIMERS_interface.h
+ * @author Ibrahim Tarek
+ * @brief This file interfaces the TIMERS module functions.
+ * @version 1.00
+ */
+
+#ifndef TIMERS_INTERFACE_H_
+#define TIMERS_INTERFACE_H_
+
+
+void TIMER_voidInit(void);
+uint8 TIMERS_u8SetCallBack(uint8 Copy_u8TimerIntSource, void (* Copy_pvNotificationFunc)(void));
+uint8 TIMER_u8SetCallBackCompareMatch(void (* Copy_pvNotificationFunc)(void));
+uint8 TIMER_u8SetCallBackOverflow(void (* Copy_pvNotificationFunc)(void));
+
+#endif

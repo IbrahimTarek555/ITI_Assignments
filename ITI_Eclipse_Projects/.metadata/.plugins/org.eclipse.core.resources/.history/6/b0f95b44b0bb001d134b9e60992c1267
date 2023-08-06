@@ -1,0 +1,33 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "PORT_interface.h"
+#include "DIO_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+
+#include <util/delay.h>
+
+
+
+void main(void)
+{
+	/*Define Variables*/
+	uint8 Local_u8PressedKey;
+
+	/*Set Pins Direction*/
+	PORT_voidInit();
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	while(1)
+	{
+		KEYPAD_u8GetPressedKey();
+		if(Local_u8PressedKey != KEYPAD_u8NO_PRESSED_KEY)
+		{
+			CLCD_voidSendData(Local_u8PressedKey);
+		}
+	}
+}

@@ -1,0 +1,73 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+#include "STEPPER_interface.h"
+
+#include <util/delay.h>
+
+
+void main(void)
+{
+	/*Define Variables*/
+	uint8 Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+	uint8 Local_u8HamokshaCounter = 0;
+
+	/*Initialize Ports*/
+	PORT_voidInit();
+
+	/*Initialize the LCD*/
+	CLCD_voidInit();
+
+	/*Declaring Motor*/
+	STEPPER_t Local_steppertMyMotor;
+	Local_steppertMyMotor.Port = DIO_u8PORTC;
+	Local_steppertMyMotor.BluePin = DIO_u8PIN0;
+	Local_steppertMyMotor.PinkPin = DIO_u8PIN1;
+	Local_steppertMyMotor.YellowPin = DIO_u8PIN2;
+	Local_steppertMyMotor.OrangePin = DIO_u8PIN3;
+
+	/*
+	 * Welcome message on the screen,
+	 * Hamoksha goes from left to right and still right until the end of the program.
+	 * */
+	do
+	{
+		CLCD_voidClearDisplay();
+		CLCD_voidSendSpecialCharacter(Local_u8Hamoksha1, 0, Local_u8HamokshaCounter, 0);
+		CLCD_voidSendSpecialCharacter(Local_u8Hamoksha2, 1, Local_u8HamokshaCounter, 1);
+		Local_u8HamokshaCounter++;
+		_delay_ms(250);
+	}while(Local_u8HamokshaCounter < 16);
+
+	CLCD_u8GoToXY(0, 3);
+	CLCD_u8SendString("Welcome!");
+	_delay_ms(500);
+	CLCD_u8GoToXY(0, 3);
+	CLCD_u8SendString("        ");
+
+
+	while(1)
+	{
+//		/*Get the pressed key*/
+//		Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+//
+//		switch(Local_u8PressedKey)
+//		{
+//		case 1:
+//			Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+//
+//			while(1)
+//			{
+//
+//			}
+//		case 2:
+//		default: Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;	break;
+//		}
+
+	}
+}

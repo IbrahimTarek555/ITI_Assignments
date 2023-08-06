@@ -1,0 +1,174 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: Ibrahim Tarek		**********************/
+/**********************			File: KERNEL_program.c		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file KERNEL_program.c
+ * @author Ibrahim Tarek
+ * @brief This file implements the KERNEL module functions.
+ * @version 1.00
+ */
+
+#include "STD_TYPES.h"
+#include "BIT_MATH.h"
+#include "DEFINES.h"
+
+#include "TIMERS_interface.h"
+
+#include "KERNEL_interface.h"
+#include "KERNEL_config.h"
+#include "KERNEL_private.h"
+
+static Task_t RTOS_stSystemTasks[RTOS_u8TASK_NUM] = {{0}};
+static void (*RTOS_pvTaskFunc[RTOS_u8TASK_NUM])(void) = {NULL};
+void RTOS_voidStart(void)
+{
+	TIMER0_2_CFG_t Local_stTimer0;
+	Local_stTimer0.ClkSelect = TIMER0_u8SYS_CLK_BY_64;
+	Local_stTimer0.OCMode = OC_DISCONNECTED;
+	Local_stTimer0.WGM = CTC;
+	TIMER0_u8Init(&Local_stTimer0);
+	TIMER0_voidSetCompValue(125);
+	TIMERS_u8SetCallBack(TIMER0_COMP, &Scheduler);
+	TIMERS_u8IntEnable(TIMER0_COMP);
+}
+
+uint8 RTOS_u8CreateTask(uint8 Copy_u8Priority, uint16 Copy_u16Periodicity, uint8 Copy_u8FirstDelay, void (*Copy_pvTaskFunc)(void))
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	if(Copy_pvTaskFunc != NULL)
+	{
+		if(RTOS_stSystemTasks[Copy_u8Priority].TaskFunc == NULL)
+		{
+			RTOS_stSystemTasks[Copy_u8Priority].Periodicity = Copy_u16Periodicity;
+			RTOS_stSystemTasks[Copy_u8Priority].PauseState = WORKING;
+			RTOS_stSystemTasks[Copy_u8Priority].FirstDelay = Copy_u8FirstDelay;
+
+			if(Copy_u8FirstDelay == 0)
+			{
+				RTOS_stSystemTasks[Copy_u8Priority].TaskFunc = Copy_pvTaskFunc;
+			}
+			else
+			{
+
+			}
+		}
+		else
+		{
+			/*Priority is used before*/
+			Local_u8ErrorState = NOK;
+		}
+	}
+	else
+	{
+		Local_u8ErrorState = NULL_PTR_ERR;
+	}
+
+	/*Return Error State*/
+	return Local_u8ErrorState;
+}
+
+uint8 RTOS_u8SuspendTask(uint8 Copy_u8TaskPriority)
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	if(Copy_u8TaskPriority < RTOS_u8TASK_NUM)
+	{
+		RTOS_stSystemTasks[Copy_u8TaskPriority].PauseState = PAUSED;
+	}
+	else
+	{
+		Local_u8ErrorState = NOK;
+	}
+	/*Return Error State*/
+	return Local_u8ErrorState;
+}
+
+uint8 RTOS_u8ResumeTask(uint8 Copy_u8TaskPriority)
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	if(Copy_u8TaskPriority < RTOS_u8TASK_NUM)
+	{
+		RTOS_stSystemTasks[Copy_u8TaskPriority].PauseState = WORKING;
+	}
+	else
+	{
+		Local_u8ErrorState = NOK;
+	}
+	/*Return Error State*/
+	return Local_u8ErrorState;
+}
+
+uint8 RTOS_u8DeleteTask(uint8 Copy_u8TaskPriority)
+{
+	/*Define Variables*/
+	uint8 Local_u8ErrorState = OK;
+
+	if(Copy_u8TaskPriority < RTOS_u8TASK_NUM)
+	{
+		RTOS_stSystemTasks[Copy_u8TaskPriority].TaskFunc = NULL;
+	}
+	else
+	{
+		Local_u8ErrorState = NOK;
+	}
+	/*Return Error State*/
+	return Local_u8ErrorState;
+}
+
+static void Scheduler(void)
+{
+	/*Define Variables*/
+	static uint16 Local_u16TickCounter = 0u;
+	uint8 Local_u8TaskCounter;
+
+	Local_u16TickCounter++;
+
+	for(Local_u8TaskCounter = 0u; Local_u8TaskCounter < RTOS_u8TASK_NUM; Local_u8TaskCounter++)
+	{
+		if(RTOS_stSystemTasks[Local_u8TaskCounter].FirstDelay == Local_u16TickCounter)
+		{
+
+		}
+	}
+
+	for(Local_u8TaskCounter = 0u; Local_u8TaskCounter < RTOS_u8TASK_NUM; Local_u8TaskCounter++)
+	{
+		if(RTOS_stSystemTasks[Local_u8TaskCounter].TaskFunc != NULL)
+		{
+			if((Local_u16TickCounter % (RTOS_stSystemTasks[Local_u8TaskCounter].Periodicity)) == 0)
+			{
+				if(RTOS_stSystemTasks[Local_u8TaskCounter].PauseState == WORKING)
+				{
+					RTOS_stSystemTasks[Local_u8TaskCounter].TaskFunc();
+				}
+				else
+				{
+					/*Do nothing*/
+				}
+			}
+			else
+			{
+				/*Do nothing*/
+			}
+		}
+		else
+		{
+			/*Task had been deleted or wasn't initialized before*/
+		}
+	}
+
+	if(Local_u16TickCounter == 60000u)
+	{
+		Local_u16TickCounter = 0u;
+	}
+}

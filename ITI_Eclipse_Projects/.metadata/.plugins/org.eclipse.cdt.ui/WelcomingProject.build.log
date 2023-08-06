@@ -1,0 +1,20 @@
+12:29:59 **** Incremental Build of configuration Debug for project WelcomingProject ****
+make all 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 WelcomingProject.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:   15212 bytes (46.4% Full)
+(.text + .data + .bootloader)
+
+Data:        319 bytes (15.6% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+12:29:59 Build Finished (took 220ms)
+

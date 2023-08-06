@@ -1,0 +1,32 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: Ibrahim Tarek		**********************/
+/**********************			File: USART_private.h		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file USART_private.h
+ * @author Ibrahim Tarek
+ * @brief This file contains USART module private defines.
+ * @version 1.00
+ */
+
+#ifndef USART_PRIVATE_H_
+#define USART_PRIVATE_H_
+
+
+#define CHAR_SIZE_MASK			0b11111001
+
+
+
+#define FIVE_BITS_CHAR_SIZE		1u
+#define SIX_BITS_CHAR_SIZE		2u
+#define SEVEN_BITS_CHAR_SIZE		3u
+#define EIGHT_BITS_CHAR_SIZE		4u
+#define NINE_BITS_CHAR_SIZE		5u
+
+#define
+
+#endif

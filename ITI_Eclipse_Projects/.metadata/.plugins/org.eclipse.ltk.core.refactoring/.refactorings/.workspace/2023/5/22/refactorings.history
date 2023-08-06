@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete 5 resources" deleteContents="false" description="Delete 5 resources" element1="/Drivers/SERL_config.h" element2="/Drivers/SERL_interface.h" element3="/Drivers/SERL_private.h" element4="/Drivers/SERL_program.c" element5="/Drivers/SERL_register.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="5" stamp="1685370690536"/>
+</session>

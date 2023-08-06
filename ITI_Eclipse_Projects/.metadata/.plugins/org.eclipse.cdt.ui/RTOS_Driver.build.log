@@ -1,0 +1,41 @@
+00:39:24 **** Incremental Build of configuration Debug for project RTOS_Driver ****
+make all 
+Building file: ../main.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega32 -DF_CPU=8000000UL -MMD -MP -MF"main.d" -MT"main.o" -c -o "main.o" "../main.c"
+In file included from ../main.c:9:
+d:/embedded systems avr tools/01- imt sdk/imt_sdk_win_64/winavr/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+../main.c:15: warning: return type of 'main' is not 'int'
+Finished building: ../main.c
+ 
+Building target: RTOS_Driver.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,RTOS_Driver.map -mmcu=atmega32 -o "RTOS_Driver.elf"  ./DIO_program.o ./GIE_program.o ./KERNEL_program.o ./PORT_program.o ./TIMERS_program.o ./main.o   
+Finished building target: RTOS_Driver.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S RTOS_Driver.elf  >"RTOS_Driver.lss"
+Finished building: RTOS_Driver.lss
+ 
+Create Flash image (ihex format)
+avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex RTOS_Driver.elf  "RTOS_Driver.hex"
+Finished building: RTOS_Driver.hex
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 RTOS_Driver.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:    8632 bytes (26.3% Full)
+(.text + .data + .bootloader)
+
+Data:         40 bytes (2.0% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+00:39:24 Build Finished (took 744ms)
+

@@ -1,0 +1,367 @@
+#include "STD_TYPES.h"
+#include "SpecialCharacters.h"
+
+#include "DIO_interface.h"
+#include "PORT_interface.h"
+
+#include "CLCD_interface.h"
+#include "KEYPAD_interface.h"
+
+#include <util/delay.h>
+
+
+
+void main(void)
+{
+	/*Define Variables*/
+	uint8 Local_u8PressedKey = KEYPAD_u8NO_PRESSED_KEY;
+
+	/*First number*/
+	sint32 Local_s32FirstNumber = 0;
+	uint8 Local_u8FirstDecimalFlag = 0;
+	uint16 Local_u16FirstDecimalNumber = 0;
+
+	/*Second Number*/
+	sint32 Local_s32SecondNumber = 0;
+	uint8 Local_u8SecondDecimalFlag = 0;
+	uint16 Local_u16SecondDecimalNumber = 0;
+
+	/*Result*/
+	sint32 Local_s32Result = 0;
+	uint8 Local_u8ResultDecimalFlag = 0;
+	uint16 Local_u16ResultDecimalNumber = 0;
+
+	/*Flags*/
+	uint8 Local_u8ArrowCounter = 0;
+	uint8 Local_u8DigitsCounter = 0;
+	uint8 Local_u8ResultFlag = 0;
+	uint8 Local_u8OperationIndex = 0;
+	uint8 Local_u8OperationFlag = 0;
+	uint8 Local_u8TempDigitsCounter = 0;
+
+	/*
+	 * PORT Description:
+	 * 1- DIO_PORTD_PIN0 -> DIO_PORTD_PIN2: INPUT, INTERNAL_PULL_UP
+	 * 2- DIO_PORTA_PIN0 -> DIO_PORTA_PIN2: OUTPUT
+	 * 3- DIO_PORTB_PIN4 -> DIO_PORTB_PIN7: OUTPUT
+	 */
+	PORT_voidInit();
+
+	/*Initialize the lcd*/
+	CLCD_voidInit();
+
+	while(1)
+	{
+		/*Get the pressed key*/
+		Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+
+		/*go to the latest position on the lcd*/
+		CLCD_u8GoToXY(Local_u8DigitsCounter, 0);
+
+		if(Local_u8ArrowCounter == 0)
+		{
+			/*Ignore any thing except numbers*/
+			switch(Local_u8PressedKey)
+			{
+			case '+':
+			case '-':
+			case '*':
+			case '/':
+			case '=':
+				if(Local_u8DigitsCounter > 0)
+				{
+					Local_u8TempDigitsCounter = Local_u8DigitsCounter;
+					Local_u8ArrowCounter++;
+				}
+				break;
+
+			case '.':
+				if(Local_u8DigitsCounter > 0)
+				{
+					CLCD_voidSendData(Local_u8PressedKey);
+					Local_u8TempDigitsCounter = Local_u8DigitsCounter;
+					Local_u8DigitsCounter++;
+					Local_u8FirstDecimalFlag = 1;
+					Local_u8ArrowCounter++;
+				}
+				break;
+
+			/*In case that the input is number, Calculate the first number*/
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				Local_u8DigitsCounter++;
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_s32FirstNumber = Local_s32FirstNumber * 10;
+				Local_s32FirstNumber = Local_s32FirstNumber + Local_u8PressedKey;
+				break;
+			}
+		}
+		if(Local_u8ArrowCounter == 1)
+		{
+			if(Local_u8FirstDecimalFlag == 1)
+			{
+				switch(Local_u8PressedKey)
+				{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					Local_u8DigitsCounter++;
+					CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+					Local_u16FirstDecimalNumber = Local_u16FirstDecimalNumber * 10;
+					Local_u16FirstDecimalNumber = Local_u16FirstDecimalNumber + Local_u8PressedKey;
+					break;
+				case '+':
+				case '-':
+				case '*':
+				case '/':
+					if(Local_u8DigitsCounter > Local_u8TempDigitsCounter)
+					{
+						Local_u8ArrowCounter++;
+					}
+					break;
+
+				case '=':
+				case '.':
+					break;
+				}
+			}
+			else
+			{
+				Local_u8ArrowCounter++;
+			}
+		}
+
+		if(Local_u8ArrowCounter == 2)
+		{
+			switch(Local_u8PressedKey)
+			{
+			case '.':
+				break;
+
+			case '+':
+			case '-':
+			case '*':
+			case '/':
+				CLCD_voidSendData(Local_u8PressedKey);
+				Local_u8OperationIndex = Local_u8PressedKey;
+//				if(Local_u8OperationFlag == 0)
+//				{
+//					Local_u8DigitsCounter++;
+//					Local_u8OperationFlag = 1;
+//				}
+				break;
+
+			case '=':
+//				Local_u8ArrowCounter = 5;
+//				CLCD_voidSendData(Local_u8PressedKey);
+//				CLCD_voidSendDecimalNumber(Local_s32FirstNumber);
+//				if(Local_u8FirstDecimalFlag == 1)
+//				{
+//					CLCD_voidSendData('.');
+//					CLCD_voidSendDecimalNumber(Local_u8FirstDecimalNumber);
+//				}
+				break;
+
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+//				if(Local_u8OperationFlag == 1)
+				{
+//					Local_u8DigitsCounter++;
+					Local_u8ArrowCounter++;
+					Local_u8TempDigitsCounter = Local_u8DigitsCounter;
+				}
+				break;
+			}
+		}
+
+		if(Local_u8ArrowCounter == 3)
+		{
+			switch(Local_u8PressedKey)
+			{
+			case '+':
+			case '-':
+			case '*':
+			case '/':
+				break;
+
+			case '.':
+				CLCD_voidSendData(Local_u8PressedKey);
+//				if(Local_u8DigitsCounter > Local_u8TempDigitsCounter)
+//				{
+					Local_u8DigitsCounter++;
+					Local_u8SecondDecimalFlag = 1;
+					Local_u8ArrowCounter++;
+//				}
+				break;
+
+			case '=':
+				Local_u8ArrowCounter++;
+				break;
+
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				if(Local_u8OperationFlag == 0)
+				{
+					Local_u8DigitsCounter++;
+					Local_u8OperationFlag = 1;
+					CLCD_u8GoToXY(Local_u8DigitsCounter, 0);
+				}
+				Local_u8DigitsCounter++;
+				CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+				Local_s32SecondNumber = Local_s32SecondNumber * 10;
+				Local_s32SecondNumber = Local_s32SecondNumber + Local_u8PressedKey;
+				break;
+			}
+		}
+		if(Local_u8ArrowCounter == 4)
+		{
+			if(Local_u8SecondDecimalFlag == 1)
+			{
+				switch(Local_u8PressedKey)
+				{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+					Local_u8DigitsCounter++;
+					CLCD_voidSendDecimalNumber(Local_u8PressedKey);
+					Local_u16SecondDecimalNumber = Local_u16SecondDecimalNumber * 10;
+					Local_u16SecondDecimalNumber = Local_u16SecondDecimalNumber + Local_u8PressedKey;
+					break;
+
+				case '+':
+				case '-':
+				case '*':
+				case '/':
+				case '.':
+					break;
+
+				case '=':
+//					CLCD_voidSendData(Local_u8PressedKey);
+					Local_u8ArrowCounter++;
+					break;
+				}
+			}
+			else
+			{
+				Local_u8ArrowCounter++;
+			}
+		}
+
+		if(Local_u8ArrowCounter == 5)
+		{
+			CLCD_voidSendData('=');
+
+			if((Local_u8FirstDecimalFlag == 1) || (Local_u8SecondDecimalFlag == 1))
+			{
+				Local_s32SecondNumber = Local_s32SecondNumber * 100;
+				Local_s32SecondNumber = Local_s32SecondNumber + Local_u16SecondDecimalNumber;
+				Local_s32FirstNumber = Local_s32FirstNumber * 100;
+				Local_s32FirstNumber = Local_s32FirstNumber + Local_u16FirstDecimalNumber;
+			}
+			else
+			{
+
+			}
+
+			switch(Local_u8OperationIndex)
+			{
+			case '+': Local_s32Result = Local_s32FirstNumber + Local_s32SecondNumber;	break;
+			case '-': Local_s32Result = Local_s32FirstNumber - Local_s32SecondNumber;	break;
+			case '*': Local_s32Result = Local_s32FirstNumber * Local_s32SecondNumber;	break;
+			case '/':
+				if(Local_s32SecondNumber == 0)
+				{
+					Local_s32Result = -1;
+				}
+				else
+				{
+					Local_s32Result = Local_s32FirstNumber / Local_s32SecondNumber;
+				}
+				break;
+			}
+
+
+			if((Local_u8FirstDecimalFlag == 1) || (Local_u8SecondDecimalFlag == 1))
+			{
+				switch(Local_u8OperationIndex)
+				{
+				case '+':
+				case '-':
+					Local_u16ResultDecimalNumber = Local_s32Result % 100;
+					Local_s32Result = Local_s32Result / 100;
+					break;
+
+				case '*':
+					Local_u16ResultDecimalNumber = Local_s32Result % 10000;
+					Local_s32Result = Local_s32Result / 10000;
+					break;
+
+				case '/':
+					break;
+				}
+				Local_s32SecondNumber = Local_s32SecondNumber / 100;
+				Local_s32FirstNumber = Local_s32FirstNumber / 100;
+			}
+
+
+			CLCD_voidSendDecimalNumber(Local_s32Result);
+
+			if((Local_u8FirstDecimalFlag == 1) || (Local_u8SecondDecimalFlag == 1))
+			{
+				CLCD_voidSendData('.');
+				CLCD_voidSendDecimalNumber(Local_u16ResultDecimalNumber);
+			}
+
+			if(Local_)
+			{
+
+			}
+
+			Local_u8ArrowCounter = 6;
+		}
+//		CLCD_u8GoToXY(0,1);
+//		CLCD_voidSendDecimalNumber(Local_s32FirstNumber);
+//		CLCD_voidSendDecimalNumber(Local_s32SecondNumber);
+//		CLCD_voidSendData(Local_u8OperationIndex);
+
+	}
+
+}

@@ -1,0 +1,20 @@
+21:11:59 **** Incremental Build of configuration Debug for project TIMERS_Lec2ControlMotorSpeedByPot ****
+make all 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 TIMERS_Lec2ControlMotorSpeedByPot.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:    4008 bytes (12.2% Full)
+(.text + .data + .bootloader)
+
+Data:         22 bytes (1.1% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+21:11:59 Build Finished (took 240ms)
+

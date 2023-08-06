@@ -1,0 +1,31 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: Ibrahim Tarek		**********************/
+/**********************			File: KERNEL_private.h		**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file KERNEL_private.h
+ * @author Ibrahim Tarek
+ * @brief This file contains KERNEL module private defines.
+ * @version 1.00
+ */
+
+#ifndef KERNEL_PRIVATE_H_
+#define KERNEL_PRIVATE_H_
+
+typedef struct
+{
+	uint16 Periodicity;
+	void (*TaskFunc)(void);
+	uint8 PauseState;
+}
+Task_t;
+
+static void Scheduler(void);
+
+#define PAUSED		0u
+#define WORKING		1u
+#endif

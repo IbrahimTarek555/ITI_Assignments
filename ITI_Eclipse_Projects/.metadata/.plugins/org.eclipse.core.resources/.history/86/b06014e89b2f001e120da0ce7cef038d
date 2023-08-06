@@ -1,0 +1,39 @@
+#include "STD_TYPES.h"
+#include "LIBRARY_interface.h"
+#include "DEFINES.h"
+
+#include "DIO_interface.h"
+
+#include <util/delay.h>
+
+/*It is the main*/
+void main(void)
+{
+
+	/*
+	 * Memory Management:
+	 * Memory is 1024 Byte, which could be divided into: 1- 100 * 4 Bytes for IDs.
+	 * 													 2- 100 * 4 Bytes for Passwords.
+	 * 													 3- 100 * 2 Bytes for Absent Days.
+	 * 													 4- 24 * 1 Byte of reserved addresses.
+	 *
+	 * IDs: Every ID will be 8 digits, every digit could be 4 bits beginning from the
+	 * 		least 4 bits of the 4 bytes.
+	 *
+	 * Passwords: Every password will be 8 digits, every digit could be 4 bits beginning from the
+	 * 			  least 4 bits of the 4 bytes.
+	 *
+	 * System: Is an absence machine, every employee entered his ID and password,
+	 * 		   then the system will mark that he attended.
+	 *
+	 * Reserved Orders: 1- 11111111: will let the user to sign up for a new ID.
+	 * 					2- 22222222: will let the user to change his ID or password.
+	 * 					3- 33333333: will let the user know the total number of attended days.
+	 */
+	PORT_voidInit();
+
+	DIO_u8SetPinValue(DIO_u8PORTA, DIO_u8PIN7, DIO_u8PIN_HIGH);
+	while(1)
+	{
+	}
+}

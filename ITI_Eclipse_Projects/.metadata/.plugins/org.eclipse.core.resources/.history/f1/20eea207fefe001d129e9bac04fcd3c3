@@ -1,0 +1,25 @@
+/*********************************************************************************/
+/*********************************************************************************/
+/**********************			Author: Ibrahim Tarek		**********************/
+/**********************			File: ULTSONIC_program.c	**********************/
+/**********************			Version: 1.00				**********************/
+/*********************************************************************************/
+/*********************************************************************************/
+
+/**
+ * @file ULTSONIC_program.c
+ * @author Ibrahim Tarek
+ * @brief This file implements the ULTSONIC sensor module functions.
+ * @version 1.00
+ */
+
+#include "STD_TYPES.h"
+#include "DEFINES.h"
+
+#include "TIMERS_interface.h"
+
+#include "ULTSONIC_config.h"
+#include "ULTSONIC_private.h"
+#include "ULTSONIC_interface.h"
+
+

@@ -1,0 +1,10 @@
+11:42:29 **** Incremental Build of configuration Debug for project TEST ****
+make all 
+Building target: TEST.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,TEST.map -mmcu=atmega32 -o "TEST.elf"  ./CLCD_program.o ./DIO_program.o ./GIE_program.o ./IR_program.o ./MOTOR_program.o ./PORT_program.o ./TIMERS_program.o ./TWI_program.o ./UART_program.o ./ULTSONIC_program.o   
+d:/embedded systems avr tools/01- imt sdk/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o:(.init9+0x0): undefined reference to `main'
+make: *** [TEST.elf] Error 1
+
+11:42:30 Build Finished (took 336ms)
+
