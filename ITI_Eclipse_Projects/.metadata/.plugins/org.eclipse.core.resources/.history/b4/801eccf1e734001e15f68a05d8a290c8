@@ -6,20 +6,12 @@
 /*********************************************************************************/
 /*********************************************************************************/
 
-<<<<<<< HEAD
-#include "../../../Common/STD_TYPES.h"
-#include "../../../Common/BIT_MATH.h"
-#include "../../../Common/DEFINES.h"
+#include "STD_TYPES.h"
+#include "BIT_MATH.h"
+#include "DIO_config.h"
 
-=======
-#include "../../../common/STD_TYPES.h"
-#include "../../../common/BIT_MATH.h"
-#include "../../../common/DEFINES.h"
-
-#include "../Header/DIO_config.h"
->>>>>>> Develop
-#include "../Header/DIO_interface.h"
-#include "../Header/DIO_private.h"
+#include "DIO_interface.h"
+#include "DIO_private.h"
 #include "../Header/DIO_register.h"
 
 uint8 DIO_u8SetPinDirection(uint8 Copy_u8Port, uint8 Copy_u8Pin, uint8 Copy_u8Direction)

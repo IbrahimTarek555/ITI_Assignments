@@ -1,0 +1,35 @@
+08:10:37 **** Incremental Build of configuration Debug for project COTS ****
+make all 
+Building file: ../TestApp/main.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega32 -DF_CPU=8000000UL -MMD -MP -MF"TestApp/main.d" -MT"TestApp/main.o" -c -o "TestApp/main.o" "../TestApp/main.c"
+Finished building: ../TestApp/main.c
+ 
+Building target: COTS.elf
+Invoking: AVR C Linker
+avr-gcc -Wl,-Map,COTS.map -mmcu=atmega32 -o "COTS.elf"  ./TestApp/main.o  ./MCAL/DIO/Source/DIO_program.o   
+Finished building target: COTS.elf
+ 
+Invoking: AVR Create Extended Listing
+avr-objdump -h -S COTS.elf  >"COTS.lss"
+Finished building: COTS.lss
+ 
+Create Flash image (ihex format)
+avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex COTS.elf  "COTS.hex"
+Finished building: COTS.hex
+ 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 COTS.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:    2078 bytes (6.3% Full)
+(.text + .data + .bootloader)
+
+Data:          0 bytes (0.0% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
