@@ -9,11 +9,13 @@
 #ifndef DIO_INTERFACE_H_
 #define DIO_INTERFACE_H_
 
+/*Copy_u8Port Options*/
 #define DIO_u8PORTA			0u
 #define DIO_u8PORTB			1u
 #define DIO_u8PORTC			2u
 #define DIO_u8PORTD			3u
 
+/*Copy_u8Pin Options*/
 #define DIO_u8PIN0			0u
 #define DIO_u8PIN1			1u
 #define DIO_u8PIN2			2u
@@ -23,9 +25,11 @@
 #define DIO_u8PIN6			6u
 #define DIO_u8PIN7			7u
 
+/*Copy_u8Direction Options*/
 #define DIO_u8PIN_INPUT		0u
 #define DIO_u8PIN_OUTPUT	1u
 
+/*Copy_pu8Value Options*/
 #define DIO_u8PIN_LOW		0u
 #define	DIO_u8PIN_HIGH		1u
 
