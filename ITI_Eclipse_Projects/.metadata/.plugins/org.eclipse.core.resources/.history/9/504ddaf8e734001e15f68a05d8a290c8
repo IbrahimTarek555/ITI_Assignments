@@ -6,11 +6,10 @@
 /*********************************************************************************/
 /*********************************************************************************/
 
-#include "../../../common/STD_TYPES.h"
-#include "../../../common/BIT_MATH.h"
-#include "../../../common/DEFINES.h"
+#include "STD_TYPES.h"
+#include "BIT_MATH.h"
+#include "DIO_config.h"
 
-#include "../Header/DIO_config.h"
 #include "../Header/DIO_interface.h"
 #include "../Header/DIO_private.h"
 #include "../Header/DIO_register.h"
