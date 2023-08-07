@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;SWITCHAssignments/Lec_Ass1&apos; to &apos;Lec1_Ass1&apos;" description="Rename resource &apos;Lec_Ass1&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Lec_Ass1" name="Lec1_Ass1" stamp="1678761611422" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;SWITCHAssignments/Lec1_Ass1&apos; to &apos;Lec1_Ass3&apos;" description="Rename resource &apos;Lec1_Ass1&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Lec1_Ass1" name="Lec1_Ass3" stamp="1678761629660" updateReferences="true"/>
-</session>
