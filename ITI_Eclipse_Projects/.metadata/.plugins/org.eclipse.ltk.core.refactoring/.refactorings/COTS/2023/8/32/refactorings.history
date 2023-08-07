@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;COTS/Common&apos; to &apos;common&apos;" description="Rename resource &apos;Common&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Common" name="common" stamp="1691358993493" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;COTS/MCAL/DIO/Program&apos; to &apos;Source&apos;" description="Rename resource &apos;Program&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="MCAL/DIO/Program" name="Source" stamp="1691359126729" updateReferences="true"/>
-</session>
