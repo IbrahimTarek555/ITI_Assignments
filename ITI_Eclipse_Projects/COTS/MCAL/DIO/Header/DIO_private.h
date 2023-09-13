@@ -6,9 +6,14 @@
 /*********************************************************************************/
 /*********************************************************************************/
 
+/**
+ * @file DIO_private.h
+ * @author Ibrahim Tarek
+ * @brief This file contains DIO module private defines.
+ * @version 1.00
+ */
+
 #ifndef DIO_PRIVATE_H_
 #define DIO_PRIVATE_H_
-
-
 
 #endif

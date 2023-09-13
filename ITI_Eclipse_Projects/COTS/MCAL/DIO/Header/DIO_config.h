@@ -6,9 +6,15 @@
 /*********************************************************************************/
 /*********************************************************************************/
 
+/**
+ * @file DIO_config.h
+ * @author Ibrahim Tarek
+ * @brief This file configures the DIO module in prebuild configuration method.
+ * @version 1.00
+ */
+
 #ifndef DIO_CONFIG_H_
 #define DIO_CONFIG_H_
-
 
 
 #endif

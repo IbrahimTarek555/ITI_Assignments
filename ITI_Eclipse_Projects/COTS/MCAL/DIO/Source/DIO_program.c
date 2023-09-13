@@ -6,14 +6,49 @@
 /*********************************************************************************/
 /*********************************************************************************/
 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+<<<<<<< HEAD
+=======
+/**
+ * @file DIO_program.c
+ * @author Ibrahim Tarek
+ * @brief This file implements the DIO module functions.
+ * @version 1.00
+ */
+
+>>>>>>> Stashed changes
+>>>>>>> PORT
 #include "../../../Common/STD_TYPES.h"
 #include "../../../Common/BIT_MATH.h"
 #include "../../../Common/DEFINES.h"
 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+#include "../../../common/STD_TYPES.h"
+#include "../../../common/BIT_MATH.h"
+#include "../../../common/DEFINES.h"
+
+#include "../Header/DIO_config.h"
+>>>>>>> Develop
+=======
+#include "../Header/DIO_config.h"
+>>>>>>> Stashed changes
+>>>>>>> PORT
 #include "../Header/DIO_interface.h"
 #include "../Header/DIO_private.h"
 #include "../Header/DIO_register.h"
 
+/**
+ * @brief 					Function to change the data direction of a pin.
+ * @param Copy_u8Port 		Port number on which the pin is found.
+ * @param Copy_u8Pin 		Pin number.
+ * @param Copy_u8Direction 	The new direction wanted to set.
+ * @return 					Error state.
+ */
 uint8 DIO_u8SetPinDirection(uint8 Copy_u8Port, uint8 Copy_u8Pin, uint8 Copy_u8Direction)
 {
 	uint8 Local_u8ErrorEstate = OK;
@@ -55,6 +90,13 @@ uint8 DIO_u8SetPinDirection(uint8 Copy_u8Port, uint8 Copy_u8Pin, uint8 Copy_u8Di
 	return Local_u8ErrorEstate;
 }
 
+/**
+ * @brief 				Function to change the value of a pin.
+ * @param Copy_u8Port 	Port number on which the pin is found.
+ * @param Copy_u8Pin 	Pin number.
+ * @param Copy_u8Value 	The new value wanted to set.
+ * @return 				Error state.
+ */
 uint8 DIO_u8SetPinValue(uint8 Copy_u8Port, uint8 Copy_u8Pin, uint8 Copy_u8Value)
 {
 	uint8 Local_u8ErrorState = OK;
@@ -96,6 +138,12 @@ uint8 DIO_u8SetPinValue(uint8 Copy_u8Port, uint8 Copy_u8Pin, uint8 Copy_u8Value)
 	return Local_u8ErrorState;
 }
 
+/**
+ * @brief 				Function to toggle the value of a pin.
+ * @param Copy_u8Port 	Port number on which the pin is found.
+ * @param Copy_u8Pin 	Pin number.
+ * @return 				Error state.
+ */
 uint8 DIO_u8TogglePinValue(uint8 Copy_u8Port, uint8 Copy_u8Pin)
 {
 	uint8 Local_u8ErrorState = OK;
@@ -119,6 +167,13 @@ uint8 DIO_u8TogglePinValue(uint8 Copy_u8Port, uint8 Copy_u8Pin)
 	return Local_u8ErrorState;
 }
 
+/**
+ * @brief 				Function to return the value of a pin.
+ * @param Copy_u8Port 	Port number on which the pin is found.
+ * @param Copy_u8Pin 	Pin number.
+ * @param Copy_pu8Value Pointer to return the value of the pin.
+ * @return 				Error state.
+ */
 uint8 DIO_u8GetPinValue(uint8 Copy_u8Port, uint8 Copy_u8Pin, uint8 *Copy_pu8Value)
 {
 	uint8 Local_u8ErrorState = OK;
@@ -142,6 +197,12 @@ uint8 DIO_u8GetPinValue(uint8 Copy_u8Port, uint8 Copy_u8Pin, uint8 *Copy_pu8Valu
 	return Local_u8ErrorState;
 }
 
+/**
+ * @brief 					Function to set the direction of a full port.
+ * @param Copy_u8Port		Port number.
+ * @param Copy_u8Direction	Character to represent port Direction.
+ * @return					Error state.
+ */
 uint8 DIO_u8SetPortDirection(uint8 Copy_u8Port, uint8 Copy_u8Direction)
 {
 	uint8 Local_u8ErrorState = OK;
@@ -158,6 +219,12 @@ uint8 DIO_u8SetPortDirection(uint8 Copy_u8Port, uint8 Copy_u8Direction)
 	return Local_u8ErrorState;
 }
 
+/**
+ * @brief 					Function to set the value of a full port.
+ * @param Copy_u8Port		Port number.
+ * @param Copy_u8Direction	Character to represent port value.
+ * @return					Error state.
+ */
 uint8 DIO_u8SetPortValue(uint8 Copy_u8Port, uint8 Copy_u8Value)
 {
 	uint8 Local_u8ErrorState = OK;
