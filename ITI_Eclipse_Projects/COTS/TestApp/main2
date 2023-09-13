@@ -1,0 +1,70 @@
+#include "../Common/STD_TYPES.h"
+#include "../Common/DEFINES.h"
+#include "../Common/BIT_MATH.h"
+
+#include "../MCAL/DIO/Header/DIO_interface.h"
+#include "../HAL/KEYPAD/Header/KEYPAD_interface.h"
+
+void main()
+{
+	uint8 Local_u8PressedKey;
+	uint8 Local_u8Num1;
+	uint8 Local_u8Num2;
+	uint8 Local_u8Operand;
+	uint8 Local_u8Result;
+
+	while(1)
+	{
+		/*Get the first number*/
+		Local_u8PressedKey = 0xff;
+		while(Local_u8PressedKey == 0xff)
+		{
+			Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+		}
+		Local_u8Num1 = Local_u8PressedKey;
+
+		/*Print the first number to the LCD*/
+		CLCD_voidSendData(Local_u8Num1);
+
+
+		/*Get the operand*/
+		Local_u8PressedKey = 0xff;
+		while(Local_u8PressedKey == 0xff)
+		{
+			Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+		}
+		Local_u8Operand = Local_u8PressedKey;
+
+		/*Print the operand to the LCD*/
+		CLCD_voidSendData(Local_u8Operand);
+
+
+		/*Get the second number*/
+		Local_u8PressedKey = 0xff;
+		while(Local_u8PressedKey == 0xff)
+		{
+			Local_u8PressedKey = KEYPAD_u8GetPressedKey();
+		}
+		Local_u8Num2 = Local_u8PressedKey;
+
+		/*Print the operand to the LCD*/
+		CLCD_voidSendData(Local_u8Num2);
+
+
+		/*Print the result*/
+		CLCD_voidSendData('=');
+		switch(Local_u8Operand)
+		{
+		case '+': Local_u8Result = Local_u8Num1 + Local_u8Num2;	break;
+		case '-': Local_u8Result = Local_u8Num1 - Local_u8Num2;	break;
+		case '*': Local_u8Result = Local_u8Num1 * Local_u8Num2;	break;
+		case '/': Local_u8Result = Local_u8Num1 / Local_u8Num2;	break;
+		default: CLCD_voidClearDisplay();	CLCD_u8SendString("Wrong input!");	break;
+		}
+
+
+
+
+
+	}
+}
